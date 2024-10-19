@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class bgRotate : MonoBehaviour
 {
-   
+
     public float speed;
 
     // Update is called once per frame
