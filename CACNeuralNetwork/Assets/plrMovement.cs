@@ -9,7 +9,7 @@ public class plrMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-       charController = gameObject.AddComponent<CharacterController>();
+       charController = gameObject.GetComponent<CharacterController>();
     }
 
     // Update is called once per frame
