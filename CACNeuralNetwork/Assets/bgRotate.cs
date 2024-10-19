@@ -2,14 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class bgMovement : MonoBehaviour
+public class bgRotate : MonoBehaviour
 {
+   
     public float speed;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -17,5 +13,5 @@ public class bgMovement : MonoBehaviour
         gameObject.transform.Rotate(0, 0, Time.deltaTime*speed);
     }
 }
-
+//i changed the script from bgmovement to this one cuz there were some errors - D
 //wrote this to test my github perms - Creative
