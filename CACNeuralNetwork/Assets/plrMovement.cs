@@ -15,7 +15,8 @@ public class plrMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 moveDirs = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        Vector2 moveDirs = new Vector2(Mathf.Clamp(Input.GetAxis("Horizontal"), -1, 1), Mathf.Clamp(Input.GetAxis("Vertical"), -1, 1));
+        print(moveDirs.x + ", " + moveDirs.y);
         charController.Move(moveDirs * Time.deltaTime * speed);
     }
 }
