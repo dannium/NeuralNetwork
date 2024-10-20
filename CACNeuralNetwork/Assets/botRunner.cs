@@ -27,7 +27,7 @@ public class botRunner : MonoBehaviour
     void nextGen()
     {
         float medianScore = GetMedian(scores);
-        // Lists are more optimized
+        // lists are more optimized
         List<float> scoresList = new List<float>();
         List<GameObject> botsList = new List<GameObject>();
 
@@ -36,7 +36,7 @@ public class botRunner : MonoBehaviour
             if (scores[i] > medianScore)
             {
                 scoresList.Add(botNum); //set score to id for testing
-                botsList.Add(bots[i]); // Use Add to add  bot to the list
+                botsList.Add(bots[i]); // ise Add to add  bot to the list
             }
             else
             {
@@ -47,14 +47,14 @@ public class botRunner : MonoBehaviour
         scores = new float[botAmount];
         bots = new GameObject[botAmount];
 
-        // Set first half of bots to the bots that won
+        // set first half of bots to the bots that won
         for (int i = 0; i < botsList.Count; i++)
         {
             scores[i] = 0;
             bots[i] = botsList[i];
         }
 
-        // Create children to fill the remaining spots
+        // create children to fill the remaining spots
         for (int i = 0; i < botAmount - botsList.Count; i++)
         {
             scores[i + botsList.Count] = 0;
@@ -69,7 +69,7 @@ public class botRunner : MonoBehaviour
         //Sort the array
         float[] sortedArray = array.OrderBy(num => num).ToArray();
         int length = sortedArray.Length;
-        //Calculate the median
+        //Calculate  median
         if (length % 2 == 1) // if odd
         {
             return sortedArray[length / 2];
@@ -85,6 +85,7 @@ public class botRunner : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
+
     {
         bots = new GameObject[botAmount];
         scores = new float[botAmount];
@@ -97,7 +98,7 @@ public class botRunner : MonoBehaviour
         timer++;
         if(timer % 2000 == 0)
         {
-            //nextGen();
+            nextGen();
         }
     }
 }

@@ -1138,7 +1138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03cc62bcfbbd0d64a8ccc4b4d16841b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  botAmount: 100
+  botAmount: 50
   bot: {fileID: 4062519793298150738, guid: 209ad5253b108244181dea53eb93c505, type: 3}
 --- !u!4 &1303707895
 Transform:
@@ -1597,7 +1597,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 497889078}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 20
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 1
   m_OnValueChanged:
