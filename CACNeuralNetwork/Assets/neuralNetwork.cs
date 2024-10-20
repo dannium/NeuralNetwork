@@ -30,15 +30,15 @@ public class neuralNetwork : MonoBehaviour
 
     private void initWeights()
     {
-        weights = new float[layerAmount][][];
+        weights = new float[layerAmount - 1][][];
         for(int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
-            weights[i] = new float[neuronAmount[i]][]; //creates array for weight coming from layer i
+            weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
             for(int j = 0; j < neuronAmount[i]; j++)
             {
-                weights[i][j] = new float[neuronAmount[i]]; //creates an array of weights based on the amount of neurons the weights come from
+                weights[i][j] = new float[neuronAmount[i+1]]; //creates an array of weights based on the amount of neurons the weights come from
 
-                for(int k = 0; k < neuronAmount[i]; k++)
+                for(int k = 0; k < neuronAmount[i+1]; k++)
                 {
                     weights[i][j][k] = (float)random.NextDouble() - 0.5f; //sets each weight
                 }
@@ -54,44 +54,48 @@ public class neuralNetwork : MonoBehaviour
         return array;
     }
 
-    private float[] outputs(float[] inputs) {
-
+    private float[] outputs(float[] inputs)
+    {
         for (int i = 0; i < inputs.Length; i++)
         {
             neurons[0][i] = inputs[i];
         }
 
-        for (int i = 1; i < layers.Length; i++) {
-            for(int j = 0; j < neurons[i].Length; j++)
+        for (int i = 1; i < layerAmount; i++) // Loop through each layer starting from the first hidden layer
+        {
+            for (int j = 0; j < neuronAmount[i]; j++) // Loop through each neuron in the current layer
             {
                 float value = bias;
-                for(int k = 0;k < neurons[i-1].Length; k++)
+                for (int k = 0; k < neuronAmount[i - 1]; k++) // Loop through each neuron in the previous layer
                 {
-                    value += weights[i - 1][j][k] * neurons[i - 1][k];
+                    value += weights[i - 1][k][j] * neurons[i - 1][k];
                 }
-                neurons[i][j] = (float)Math.Tanh(value); //sets value between -1 and 1
+                neurons[i][j] = (float)Math.Tanh(value); // Set value between -1 and 1
             }
         }
-        return neurons[neurons.Length - 1];
+        return neurons[layerAmount - 1];
     }
 
-     
+
     // Start is called before the first frame update
     void Start()
     {
-        random = new System.Random(); // Initialize the random variable
+        random = new System.Random(); // Initialize the random variable        
+        layers = new int[layerAmount];
+        for (int i = 0; i < layerAmount; i++)
+        {
+            layers[i] = neuronAmount[i]; // Set each layer to the corresponding number of neurons
+        }
+
         //initalize neurons and weights
         initNeurons();
         initWeights();
-
-        layers = new int[layerAmount];
-        layers[0] = 2; //amount of inputs
-        layers[layers.Length - 1] = 2; // amount of outputs
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.position = new Vector2(transform.position.x + outputs(inputs())[0], transform.position.y + outputs(inputs())[1])*Time.deltaTime; //changes bots position based on outputs
+        transform.position = new Vector2(transform.position.x + outputs(inputs())[0], transform.position.y + outputs(inputs())[1])*Time.deltaTime*100f; //changes bots position based on outputs
+        print("x: " + outputs(inputs())[0] + ", y: " + outputs(inputs())[1]);
     }
 }
