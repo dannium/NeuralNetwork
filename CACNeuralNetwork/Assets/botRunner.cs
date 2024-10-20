@@ -97,7 +97,7 @@ public class botRunner : MonoBehaviour
         timer++;
         if(timer % 2000 == 0)
         {
-            nextGen();
+            //nextGen();
         }
     }
 }
