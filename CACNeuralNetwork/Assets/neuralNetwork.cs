@@ -7,13 +7,13 @@ using Unity.VisualScripting;
 
 public class neuralNetwork : MonoBehaviour
 {
-    System.Random random;
+    [SerializeField] System.Random random;
     float destinationX = 10f;
     float destinationY = 10f;
     //idk if we need the constructor, so i didnt add it, make sure to comment a bunch
-    private int[] layers; //amount of neurons in each layer
-    private float[][] neurons; //layer of neuron, specific neuron
-    private float[][][] weights; //layer of weight, neuron weight affects, weight's value
+    [SerializeField] int[] layers; //amount of neurons in each layer
+    public float[][] neurons; //layer of neuron, specific neuron
+    [SerializeField] float[][][] weights; //layer of weight, neuron weight affects, weight's value
 
     public int layerAmount; //number of layers in network (probably gonna be 4)
     public int[] neuronAmount; //number of nuerons in each layer
@@ -80,18 +80,30 @@ public class neuralNetwork : MonoBehaviour
 
     public GameObject createChild(int id)
     {
-        GameObject Child = Instantiate(gameObject);
+        GameObject Child = Instantiate(transform.gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
+
+        nn.random = new System.Random(); // Initialize the random variable        
+        nn.layers = new int[layerAmount];
+        for (int i = 0; i < layerAmount; i++)
+        {
+            nn.layers[i] = neuronAmount[i]; // Set each layer to the corresponding number of neurons
+        }
+
+        //initalize neurons and weights
+        nn.initNeurons();
+        nn.initWeights();
+
         //Child.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = id.ToString();
-        for (int i = 0; i < nn.layerAmount - 1; i++) //create until layer before output layer
+        for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
             nn.weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
-            for (int j = 0; j < nn.neuronAmount[i]; j++)
+            for (int j = 0; j < neuronAmount[i]; j++)
             {
-                nn.weights[i][j] = new float[nn.neuronAmount[i + 1]]; //creates an array of weights based on the amount of neurons the weights come from
+                nn.weights[i][j] = new float[neuronAmount[i + 1]]; //creates an array of weights based on the amount of neurons the weights come from
 
-                for (int k = 0; k < nn.neuronAmount[i + 1]; k++)
+                for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
                     nn.weights[i][j][k] = weights[i][j][k]; //sets each weight to parent's weight
                 }

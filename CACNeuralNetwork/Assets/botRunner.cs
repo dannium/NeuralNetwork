@@ -12,12 +12,11 @@ public class botRunner : MonoBehaviour
     GameObject[] bots;
     float[] scores;
     int botNum;
-    neuralNetwork neuralNetworkScript;
     int timer = 0;
 
     void firstGen()
     {
-        for (botNum = 1; botNum < bots.Length; botNum++)
+        for (botNum = 1; botNum < bots.Length + 1; botNum++)
         {
             scores[botNum - 1] = botNum; //score set to id for testing
             bots[botNum - 1] = Instantiate(bot);
@@ -47,18 +46,21 @@ public class botRunner : MonoBehaviour
         scores = new float[botAmount];
         bots = new GameObject[botAmount];
 
-        // set first half of bots to the bots that won
+        // set first half of bots array to the bots that survived
+        int index = 0;
         for (int i = 0; i < botsList.Count; i++)
         {
             scores[i] = 0;
+            botsList[i].transform.position = Vector2.zero;
             bots[i] = botsList[i];
+            index++;
         }
-
         // create children to fill the remaining spots
-        for (int i = 0; i < botAmount - botsList.Count; i++)
+        for (int i = index; i < botAmount; i++)
         {
-            scores[i + botsList.Count] = 0;
-            bots[i + botsList.Count] = Instantiate(neuralNetworkScript.createChild(botNum));
+            scores[i] = 0;
+            //print(i-index);
+            bots[i] = bots[i - index].GetComponent<neuralNetwork>().createChild(botNum);
             botNum++;
         }
     }
