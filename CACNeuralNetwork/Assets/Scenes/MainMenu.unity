@@ -2103,7 +2103,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: So yeah Im cool fhe;iuwegfpiuwegfiwuegfiweufweifugiwefliuglwiefwiefuglieliweliguwefliuwefliugwefleifugwfliyuwegf
+  m_text: You start by hiding.  After, you can experiment with how bots function,
+    and then 50 bots will be released, and will evolve over time to get better at
+    finding you.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 933a5e904c1b4f24ab87a6b4303f939c, type: 2}
   m_sharedMaterial: {fileID: -573812943408617919, guid: 933a5e904c1b4f24ab87a6b4303f939c, type: 2}
