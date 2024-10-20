@@ -83,7 +83,7 @@ public class neuralNetwork : MonoBehaviour
         GameObject Child = Instantiate(gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
-        Child.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = id.ToString();
+        //Child.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = id.ToString();
         for (int i = 0; i < nn.layerAmount - 1; i++) //create until layer before output layer
         {
             nn.weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
@@ -105,7 +105,7 @@ public class neuralNetwork : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
+        //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
         random = new System.Random(); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)

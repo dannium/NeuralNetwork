@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using System.Threading;
 
 public class botRunner : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class botRunner : MonoBehaviour
     float[] scores;
     int botNum;
     neuralNetwork neuralNetworkScript;
+    int timer = 0;
 
     void firstGen()
     {
@@ -25,39 +27,42 @@ public class botRunner : MonoBehaviour
     void nextGen()
     {
         float medianScore = GetMedian(scores);
-        //lists are more optimised
+        // Lists are more optimized
         List<float> scoresList = new List<float>();
         List<GameObject> botsList = new List<GameObject>();
-        int j = 0;
+
         for (int i = 0; i < bots.Length; i++)
         {
             if (scores[i] > medianScore)
             {
-                scoresList.Add(botNum);
-                botsList.Add(bots[i]);
-                j++;
-            } else
+                scoresList.Add(botNum); //set score to id for testing
+                botsList.Add(bots[i]); // Use Add to add  bot to the list
+            }
+            else
             {
                 Destroy(bots[i]);
             }
         }
-        scores = null;
-        bots = null;
 
-        for (int i = 0; j < botsList.Count; j++)
+        scores = new float[botAmount];
+        bots = new GameObject[botAmount];
+
+        // Set first half of bots to the bots that won
+        for (int i = 0; i < botsList.Count; i++)
         {
             scores[i] = 0;
-            bots[i] = botsList[i]; //set first half of bots to the bots that won
+            bots[i] = botsList[i];
         }
 
-        ////////// create children
-        for(int i = 0; i < botAmount - botsList.Count; i++)
+        // Create children to fill the remaining spots
+        for (int i = 0; i < botAmount - botsList.Count; i++)
         {
             scores[i + botsList.Count] = 0;
             bots[i + botsList.Count] = Instantiate(neuralNetworkScript.createChild(botNum));
-            botNum += 1;
+            botNum++;
         }
     }
+
 
     static float GetMedian(float[] array)
     {
@@ -78,18 +83,21 @@ public class botRunner : MonoBehaviour
     }
 
 
-// Start is called before the first frame update
-void Start()
+    // Start is called before the first frame update
+    void Start()
     {
         bots = new GameObject[botAmount];
         scores = new float[botAmount];
         firstGen();
-        nextGen();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        timer++;
+        if(timer % 2000 == 0)
+        {
+            nextGen();
+        }
     }
 }
