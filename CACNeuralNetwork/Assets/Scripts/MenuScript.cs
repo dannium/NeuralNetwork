@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
@@ -17,14 +18,9 @@ public class MenuScript : MonoBehaviour
         
     }
 
-    public void ModesClick()
+    public void Play()
     {
-        animator.SetTrigger("Mode");
-    }
-
-    public void ModesOut()
-    {
-        animator.SetTrigger("ModeOut");
+        SceneManager.LoadSceneAsync(0);
     }
 
     public void HowToPlay()
