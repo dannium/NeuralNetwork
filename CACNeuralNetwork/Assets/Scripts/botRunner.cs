@@ -35,7 +35,8 @@ public class botRunner : MonoBehaviour
             if (scores[i] > medianScore)
             {
                 scoresList.Add(botNum); //set score to id for testing
-                botsList.Add(bots[i]); // ise Add to add  bot to the list
+                botsList.Add(bots[i]); // use Add to add  bot to  list if it survived
+                print(scoresList[scoresList.Count - 1]);
             }
             else
             {
@@ -63,6 +64,7 @@ public class botRunner : MonoBehaviour
             bots[i] = bots[i - index].GetComponent<neuralNetwork>().createChild(botNum);
             botNum++;
         }
+        index = 0;
     }
 
 
