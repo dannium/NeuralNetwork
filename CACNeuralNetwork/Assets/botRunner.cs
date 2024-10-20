@@ -11,12 +11,13 @@ public class botRunner : MonoBehaviour
     GameObject[] bots;
     float[] scores;
     int botNum;
+    neuralNetwork neuralNetworkScript;
 
     void firstGen()
     {
         for (botNum = 1; botNum < bots.Length; botNum++)
         {
-            scores[botNum - 1] = 0;
+            scores[botNum - 1] = botNum; //score set to id for testing
             bots[botNum - 1] = Instantiate(bot);
             bots[botNum - 1].name = (botNum).ToString();
         }
@@ -24,6 +25,7 @@ public class botRunner : MonoBehaviour
     void nextGen()
     {
         float medianScore = GetMedian(scores);
+        //lists are more optimised
         List<float> scoresList = new List<float>();
         List<GameObject> botsList = new List<GameObject>();
         int j = 0;
@@ -31,14 +33,30 @@ public class botRunner : MonoBehaviour
         {
             if (scores[i] > medianScore)
             {
-                scoresList[j] = scores[i];
-                botsList[j] = bots[i];
+                scoresList.Add(botNum);
+                botsList.Add(bots[i]);
                 j++;
+            } else
+            {
+                Destroy(bots[i]);
             }
         }
+        scores = null;
+        bots = null;
 
-        
+        for (int i = 0; j < botsList.Count; j++)
+        {
+            scores[i] = 0;
+            bots[i] = botsList[i]; //set first half of bots to the bots that won
+        }
+
         ////////// create children
+        for(int i = 0; i < botAmount - botsList.Count; i++)
+        {
+            scores[i + botsList.Count] = 0;
+            bots[i + botsList.Count] = Instantiate(neuralNetworkScript.createChild(botNum));
+            botNum += 1;
+        }
     }
 
     static float GetMedian(float[] array)
@@ -66,6 +84,7 @@ void Start()
         bots = new GameObject[botAmount];
         scores = new float[botAmount];
         firstGen();
+        nextGen();
     }
 
     // Update is called once per frame

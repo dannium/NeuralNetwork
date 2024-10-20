@@ -76,6 +76,14 @@ public class neuralNetwork : MonoBehaviour
         return neurons[layerAmount - 1];
     }
 
+    public GameObject createChild(int id)
+    {
+        GameObject Child = Instantiate(gameObject);
+        Child.name = id.ToString();
+        //we gotta change the neurons here or theyll be the exact same
+        return Child;
+    }
+
 
     // Start is called before the first frame update
     void Start()
