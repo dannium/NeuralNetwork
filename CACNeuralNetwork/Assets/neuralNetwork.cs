@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using TMPro;
+using Unity.VisualScripting;
 
 public class neuralNetwork : MonoBehaviour
 {
@@ -31,14 +33,14 @@ public class neuralNetwork : MonoBehaviour
     private void initWeights()
     {
         weights = new float[layerAmount - 1][][];
-        for(int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
+        for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
             weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
-            for(int j = 0; j < neuronAmount[i]; j++)
+            for (int j = 0; j < neuronAmount[i]; j++)
             {
-                weights[i][j] = new float[neuronAmount[i+1]]; //creates an array of weights based on the amount of neurons the weights come from
+                weights[i][j] = new float[neuronAmount[i + 1]]; //creates an array of weights based on the amount of neurons the weights come from
 
-                for(int k = 0; k < neuronAmount[i+1]; k++)
+                for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
                     weights[i][j][k] = (float)random.NextDouble() - 0.5f; //sets each weight
                 }
@@ -79,8 +81,23 @@ public class neuralNetwork : MonoBehaviour
     public GameObject createChild(int id)
     {
         GameObject Child = Instantiate(gameObject);
+        neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
-        //we gotta change the neurons here or theyll be the exact same
+        Child.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = id.ToString();
+        for (int i = 0; i < nn.layerAmount - 1; i++) //create until layer before output layer
+        {
+            nn.weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
+            for (int j = 0; j < nn.neuronAmount[i]; j++)
+            {
+                nn.weights[i][j] = new float[nn.neuronAmount[i + 1]]; //creates an array of weights based on the amount of neurons the weights come from
+
+                for (int k = 0; k < nn.neuronAmount[i + 1]; k++)
+                {
+                    nn.weights[i][j][k] = weights[i][j][k]; //sets each weight to parent's weight
+                }
+            }
+        }
+
         return Child;
     }
 
@@ -88,6 +105,7 @@ public class neuralNetwork : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
         random = new System.Random(); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
@@ -103,7 +121,7 @@ public class neuralNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = new Vector2(transform.position.x + outputs(inputs())[0]*Time.deltaTime, transform.position.y + outputs(inputs())[1]*Time.deltaTime); //changes bots position based on outputs
-        print(new Vector2(outputs(inputs())[0], outputs(inputs())[1]));
+        transform.position = new Vector2(transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] * Time.deltaTime); //changes bots position based on outputs
+        //print(new Vector2(outputs(inputs())[0], outputs(inputs())[1]));
     }
 }
