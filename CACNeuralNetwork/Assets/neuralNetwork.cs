@@ -121,7 +121,7 @@ public class neuralNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = new Vector2(transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] * Time.deltaTime); //changes bots position based on outputs
+        transform.position = new Vector2(transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] *Time.deltaTime); //changes bots position based on outputs
         //print(new Vector2(outputs(inputs())[0], outputs(inputs())[1]));
     }
 }
