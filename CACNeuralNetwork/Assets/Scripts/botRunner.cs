@@ -17,7 +17,7 @@ public class botRunner : MonoBehaviour
 
     void firstGen()
     {
-        for (botNum = 1; botNum < bots.Length + 1; botNum++)
+        for (botNum = 1; botNum < bots.Length; botNum++)
         {
             bots[botNum - 1] = Instantiate(bot);
             bots[botNum - 1].name = (botNum).ToString();
@@ -27,11 +27,11 @@ public class botRunner : MonoBehaviour
     }
     void nextGen()
     {
-        for(int i = 0; i < scores.Length; i++)
+        for(int i = 0; i < scores.Length - 1; i++)
         {
             if (bots[i] == null)
             {
-                Debug.LogError("bots[" + i + "] is null");
+                Debug.LogError("bots[i] is null");
             }
             else
             {
@@ -43,7 +43,6 @@ public class botRunner : MonoBehaviour
                 else
                 {
                     float score = neuralNetworkComponent.score;
-                    scores[i] = score;
                     Debug.Log("Score: " + score);
                 }
             }
@@ -136,7 +135,7 @@ public class botRunner : MonoBehaviour
     {
 
         timer += Time.deltaTime;
-        if(timer >= 60)
+        if(timer >= 250)
         {
             timer = 0;
             nextGen();
