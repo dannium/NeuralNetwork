@@ -75,7 +75,8 @@ private float[] outputs(float[] inputs)
     {
         for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
         {
-            float value = neurons[i - 1][0] * weights[i - 1][0][j]; // Replace "print(i + ", " + j + ", " + k);" with the correct math operation
+                //print(neurons[i - 1][j]);
+                float value = 0.25f;//neurons[i - 1][0] * weights[i - 1][0][j]; // Replace "print(i + ", " + j + ", " + k);" with the correct math operation
             for (int k = 1; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
             {
                 value += neurons[i - 1][k] * weights[i - 1][k][j];
@@ -165,7 +166,7 @@ private float[] outputs(float[] inputs)
         {
             rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
         }
-        if(name == "17")
+        if(name == "11")
         {
             print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
         }
