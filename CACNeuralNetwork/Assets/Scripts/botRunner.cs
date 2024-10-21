@@ -15,6 +15,8 @@ public class botRunner : MonoBehaviour
     int botNum;
     float timer = 0;
 
+    bool start = false;
+    public plrMovement PM;
     void firstGen()
     {
         for (botNum = 1; botNum < bots.Length + 1; botNum++)
@@ -128,18 +130,27 @@ public class botRunner : MonoBehaviour
     {
         bots = new GameObject[botAmount];
         scores = new float[botAmount];
-        firstGen();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) && !start)
+        {
+            firstGen();
+            start = false;
+        }
 
+        if (start)
+        {
+            PM.speed = 0;
         timer += Time.deltaTime;
         if (timer >= 60)
         {
             timer = 0;
             nextGen();
         }
+        }
+        
     }
 }
