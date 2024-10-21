@@ -560,7 +560,7 @@ GameObject:
   - component: {fileID: 1294735163}
   - component: {fileID: 1294735162}
   m_Layer: 5
-  m_Name: Play
+  m_Name: Modes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
