@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1144535387099324386}
   - component: {fileID: -5453416471586602911}
   - component: {fileID: -2385971777856564614}
+  - component: {fileID: 7551593757065496594}
   m_Layer: 3
   m_Name: bot
   m_TagString: Untagged
@@ -168,3 +169,20 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.4
+--- !u!114 &7551593757065496594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4062519793298150738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdd67d1c7ef7d6c479f9c89dd26a4045, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 44399877, guid: 68c44a512d948984781d6bc84da81b48, type: 3}
+  - {fileID: 1522996356, guid: 68c44a512d948984781d6bc84da81b48, type: 3}
+  - {fileID: -1876225521, guid: 68c44a512d948984781d6bc84da81b48, type: 3}
+  - {fileID: -198538189, guid: 68c44a512d948984781d6bc84da81b48, type: 3}
