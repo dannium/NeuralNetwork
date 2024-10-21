@@ -1602,7 +1602,7 @@ MonoBehaviour:
   slider: {fileID: 1686067469}
   TP: {fileID: 841490147}
   scaleTxt: {fileID: 1599646183}
-  BR: {fileID: 0}
+  BR: {fileID: 1303707894}
 --- !u!1 &1799477977
 GameObject:
   m_ObjectHideFlags: 0
