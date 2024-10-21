@@ -136,7 +136,7 @@ public class botRunner : MonoBehaviour
     {
 
         timer += Time.deltaTime;
-        if (timer >= 60)
+        if (timer >= 20)
         {
             timer = 0;
             nextGen();

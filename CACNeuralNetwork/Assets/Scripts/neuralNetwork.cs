@@ -9,8 +9,8 @@ using System.Threading;
 public class neuralNetwork : MonoBehaviour
 {
     [SerializeField] System.Random random;
-    float destinationX = 10f;
-    float destinationY = 10f;
+    float destinationX = 4f;
+    float destinationY = 12f;
     public float score = 0f;
     [SerializeField] int[] layers; //amount of neurons in each layer
     [SerializeField] float[][] neurons; //layer of neuron, specific neuron
@@ -161,8 +161,8 @@ public class neuralNetwork : MonoBehaviour
         rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
                                                                                                                                                                                        // score += outputs(inputs())[0];
                                                                                                                                                                                        //        score += outputs(inputs())[1];
-        score -= MathF.Abs(transform.position.y) * Time.deltaTime;
-        score += transform.position.x  * Time.deltaTime;
+        score -= (transform.position.y - destinationY) * Time.deltaTime;
+        score -= (transform.position.x - destinationX)  * Time.deltaTime;
 
     }
 
@@ -170,7 +170,7 @@ public class neuralNetwork : MonoBehaviour
     {
         if(col.gameObject.tag == "wall")
         {
-            score -= 5f * Time.deltaTime;
+            score -= 25f * Time.deltaTime;
         }
     }
 }
