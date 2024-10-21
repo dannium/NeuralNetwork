@@ -42,15 +42,16 @@ public class neuralNetwork : MonoBehaviour
          UnityEngine.Random.InitState(id);
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
-        {
-            weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
-            for (int j = 0; j < neuronAmount[i]; j++)
+        {  
+            weights[i] = new float[neuronAmount[i + 1]][]; //creates array for weights coming from layer i
+            for (int j = 0; j < neuronAmount[i + 1]; j++)
             {
-                weights[i][j] = new float[neuronAmount[i + 1]]; //creates an array of weights based on the amount of neurons the weights come from
+                weights[i][j] = new float[neuronAmount[i]]; //creates an array of weights based on the amount of neurons the weights come from
 
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
                     weights[i][j][k] = (float)random.NextDouble() - 0.5f;
+                    print(i + ", " + j + ", " + k);
                 }
             }
         }
@@ -78,8 +79,6 @@ public class neuralNetwork : MonoBehaviour
                 float value = 0.25f;
                 for (int k = 0; k < neurons[i-1].Length; k++) // Loop through each neuron in the previous layer
                 {
-                    //value += weights[i - 1][j][k];//* neurons[i - 1][k]; //adds the product of the weight
-                    print(j);
                     value += weights[i - 1][j][k] * neurons[i - 1][k];
                 }
                 neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
@@ -169,7 +168,7 @@ public class neuralNetwork : MonoBehaviour
         }
         if(name == "17")
         {
-            print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
+            //print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
         }
         // score += outputs(inputs())[0];
         //        score += outputs(inputs())[1];
