@@ -113,7 +113,7 @@ public class botRunner : MonoBehaviour
     void Update()
     {
         timer++;
-        if(timer % 4000 == 0)
+        if(timer % 100 == 0)
         {
             nextGen();
         }
