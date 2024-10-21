@@ -481,7 +481,7 @@ MonoBehaviour:
   m_Follow: {fileID: 1842284140}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 5
+    OrthographicSize: 3
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -1217,7 +1217,8 @@ MonoBehaviour:
   botAmount: 50
   bot: {fileID: 4062519793298150738, guid: 209ad5253b108244181dea53eb93c505, type: 3}
   bots: []
-  PM: {fileID: 0}
+  start: 0
+  PM: {fileID: 1842284138}
 --- !u!4 &1303707895
 Transform:
   m_ObjectHideFlags: 0
@@ -1295,7 +1296,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1601,6 +1602,7 @@ MonoBehaviour:
   slider: {fileID: 1686067469}
   TP: {fileID: 841490147}
   scaleTxt: {fileID: 1599646183}
+  BR: {fileID: 0}
 --- !u!1 &1799477977
 GameObject:
   m_ObjectHideFlags: 0

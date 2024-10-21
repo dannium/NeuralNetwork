@@ -12,6 +12,7 @@ public class TimeSlider : MonoBehaviour
     public UnityEngine.UI.Slider slider;
     public TimePause TP;
     public TMP_Text scaleTxt;
+    public botRunner BR;
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +37,14 @@ public class TimeSlider : MonoBehaviour
         } else
         {
             scaleTxt.text = "Speed: " + scale + "x";
+        }
+
+        if (!BR.start)
+        {
+            slider.interactable = false;
+        } else
+        {
+            slider.interactable = true;
         }
     }
 }

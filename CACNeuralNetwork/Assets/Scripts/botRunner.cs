@@ -15,7 +15,7 @@ public class botRunner : MonoBehaviour
     int botNum;
     float timer = 0;
 
-    bool start = false;
+    [SerializeField] public bool start = false;
     public plrMovement PM;
     void firstGen()
     {
