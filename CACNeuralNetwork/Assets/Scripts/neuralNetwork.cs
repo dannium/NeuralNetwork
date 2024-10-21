@@ -5,6 +5,7 @@ using System;
 using TMPro;
 using Unity.VisualScripting;
 using System.Threading;
+using System.Xml;
 
 public class neuralNetwork : MonoBehaviour
 {
@@ -38,8 +39,7 @@ public class neuralNetwork : MonoBehaviour
 
     private void initWeights()
     {
-        print(id);
-        UnityEngine.Random.InitState(id);
+         UnityEngine.Random.InitState(id);
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
@@ -50,7 +50,7 @@ public class neuralNetwork : MonoBehaviour
 
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
-                    weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f); //sets each weight
+                    weights[i][j][k] = (float)random.NextDouble() - 0.5f;
                 }
             }
         }
@@ -68,23 +68,24 @@ public class neuralNetwork : MonoBehaviour
     {
         for (int i = 0; i < inputs.Length; i++)
         {
-            neurons[0][i] = inputs[i];
+            neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
         }
 
-        for (int i = 1; i < layerAmount; i++) // Loop through each layer starting from the first hidden layer
+        for (int i = 1; i < layers.Length; i++) // Loop through each layer starting from the first hidden layer
         {
-            for (int j = 0; j < neuronAmount[i]; j++) // Loop through each neuron in the current layer
+            for (int j = 0; j < neurons[i].Length - 1; j++) // Loop through each neuron in the current layer
             {
-                float value = bias;
-                for (int k = 0; k < neuronAmount[i - 1]; k++) // Loop through each neuron in the previous layer
+                float value = 0.25f;
+                for (int k = 0; k < neurons[i-1].Length; k++) // Loop through each neuron in the previous layer
                 {
-                    value += weights[i - 1][k][j] * neurons[i - 1][k];
+                    //value += weights[i - 1][j][k];//* neurons[i - 1][k]; //adds the product of the weight
+                    print(j);
                 }
-                neurons[i][j] = (float)Math.Tanh(value); // Set value between -1 and 1
+                neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
             }
         }
 
-        return neurons[layerAmount - 1];
+        return neurons[neurons.Length - 1];
     }
 
     public GameObject createChild(int id)
@@ -124,12 +125,12 @@ public class neuralNetwork : MonoBehaviour
                 {
                     if (mutateChance < UnityEngine.Random.Range(1, 100))
                     {
-                        weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f) * (float)random.NextDouble();
+                        weights[i][j][k] = (float)random.NextDouble() - 0.5f;
                         //(float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
                     }
                     else
                     {
-                        nn.weights[i][j][k] = weights[i][j][k]; //sets weight to arent's weight
+                        nn.weights[i][j][k] = weights[i][j][k]; //sets weight to parent's weight
                     }
                 }
             }
@@ -164,6 +165,10 @@ public class neuralNetwork : MonoBehaviour
         if(!foundPlayer)
         {
             rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
+        }
+        if(name == "17")
+        {
+            print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
         }
         // score += outputs(inputs())[0];
         //        score += outputs(inputs())[1];
