@@ -20,7 +20,3 @@ Due to the highest-performing bots surviving and reproducing, each generation se
 ### - Player Engagement - 
 In addition to watching how the bots refine themselves over each generation, players are encouraged to experiment with different hiding strategies and a myriad of parameters, such as `mutation rates`, `amount of neurons`, and `number of neuron layers`. This customizability enables users to learn about how different factors affect the process of training neural networks, their performance, and overall effectiveness. 
 <hr>
-
-### - About Us -
-"Hidden Data" was created by `Jacob Bancroft`, `Danny Reilly`, `Luke Evenson`, and `Eamon Brisson`, freshmen at North Kingstown High School in Rhode Island, for the *2024 Congressional App Challenge*.
-
