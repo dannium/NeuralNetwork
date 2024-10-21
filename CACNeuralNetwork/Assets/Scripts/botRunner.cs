@@ -67,7 +67,6 @@ public class botRunner : MonoBehaviour
             {
                 scores[i] = 0;
                 bots[i] = botsList[i - index].GetComponent<neuralNetwork>().createChild(botNum);
-                print(botNum);
                 botNum++;
             }
             else
@@ -113,7 +112,7 @@ public class botRunner : MonoBehaviour
     void Update()
     {
         timer++;
-        if(timer % 500 == 0)
+        if(timer % 4000 == 0)
         {
             nextGen();
         }

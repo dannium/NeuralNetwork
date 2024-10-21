@@ -34,6 +34,7 @@ public class neuralNetwork : MonoBehaviour
 
     private void initWeights()
     {
+        print(name);
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
@@ -119,7 +120,7 @@ public class neuralNetwork : MonoBehaviour
                     }
                     else
                     {
-                        nn.weights[i][j][k] = weights[i][j][k]; //sets weight to parent's weight
+                        nn.weights[i][j][k] = weights[i][j][k]; //sets weight to arent's weight
                     }
                 }
             }
@@ -133,7 +134,7 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
-        random = new System.Random(int.Parse(name)); // Initialize the random variable        
+        random = new System.Random(); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
         {

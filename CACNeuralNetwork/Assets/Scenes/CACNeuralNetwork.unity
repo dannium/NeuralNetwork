@@ -203,10 +203,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf99776af9472ae4ba725dadc4b1b6e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  score: 0
   layers: 
   layerAmount: 4
   neuronAmount: 02000000040000000400000002000000
   bias: 0
+  mutateChance: 0
 --- !u!1 &302413381
 GameObject:
   m_ObjectHideFlags: 0
@@ -1248,7 +1250,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 497889078}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 20
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 1
   m_OnValueChanged:
