@@ -18,7 +18,7 @@ public class neuralNetwork : MonoBehaviour
     public float[][][] weights; //layer of weight, neuron weight affects, weight's value
 
     public int layerAmount; //number of layers in network (probably gonna be 4)
-    public int[] neuronAmount; //number of nuerons in each layer
+    public int[] neuronAmount; //number of neurons in each layer
 
     public float bias; // starting weight for all weights
 
@@ -27,6 +27,7 @@ public class neuralNetwork : MonoBehaviour
     public int id;
     Rigidbody2D rb;
     bool foundPlayer = false;
+    float moveSpeed = 5f; // Constant move speed for the bot
 
     private void initNeurons()
     {
@@ -64,29 +65,28 @@ public class neuralNetwork : MonoBehaviour
         return array;
     }
 
-private float[] outputs(float[] inputs)
-{
-    for (int i = 0; i < inputs.Length; i++)
+    private float[] outputs(float[] inputs)
     {
-        neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
-    }
-
-    for (int i = 1; i < layers.Length; i++) // Loop through each layer starting from the first hidden layer
-    {
-        for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
+        for (int i = 0; i < inputs.Length; i++)
         {
-                //print(neurons[i - 1][j]);
-                float value = 0.25f;//neurons[i - 1][0] * weights[i - 1][0][j]; // Replace "print(i + ", " + j + ", " + k);" with the correct math operation
-            for (int k = 1; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
-            {
-                value += neurons[i - 1][k] * weights[i - 1][k][j];
-            }
-            neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
+            neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
         }
-    }
 
-    return neurons[neurons.Length - 1];
-}
+        for (int i = 1; i < layers.Length; i++) // Loop through each layer starting from the first hidden layer
+        {
+            for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
+            {
+                float value = 0.25f;
+                for (int k = 1; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
+                {
+                    value += neurons[i - 1][k] * weights[i - 1][k][j];
+                }
+                neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
+            }
+        }
+
+        return neurons[neurons.Length - 1];
+    }
 
     public GameObject createChild(int id)
     {
@@ -113,7 +113,6 @@ private float[] outputs(float[] inputs)
         nn.initNeurons();
         nn.initWeights();
 
-        //Child.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = id.ToString();
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
             nn.weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
@@ -126,7 +125,6 @@ private float[] outputs(float[] inputs)
                     if (mutateChance < UnityEngine.Random.Range(1, 100))
                     {
                         weights[i][j][k] = (float)random.NextDouble() - 0.5f;
-                        //(float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
                     }
                     else
                     {
@@ -139,11 +137,9 @@ private float[] outputs(float[] inputs)
         return Child;
     }
 
-
     // Start is called before the first frame update
     void Start()
     {
-        //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
         destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
         destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
         random = new System.Random(); // Initialize the random variable        
@@ -162,24 +158,29 @@ private float[] outputs(float[] inputs)
     // Update is called once per frame
     void Update()
     {
-        if(!foundPlayer)
+        if (!foundPlayer)
         {
-            rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
+            // Get output and normalize it to maintain constant speed
+            Vector2 movement = new Vector2(outputs(inputs())[0], outputs(inputs())[1]);
+            movement.Normalize(); // Ensure movement has a constant magnitude
+
+            // Move the bot
+            rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
         }
-        if(name == "11")
+
+        // Debug print for specific bot (e.g., bot with name "11")
+        if (name == "11")
         {
             print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
         }
-        // score += outputs(inputs())[0];
-        //        score += outputs(inputs())[1];
-        score -= (transform.position.y - destinationY) * Time.deltaTime;
-        score -= (transform.position.x - destinationX)  * Time.deltaTime;
 
+        // Reduce score based on the distance from the destination
+        score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime;
     }
 
     private void OnCollisionStay2D(Collision2D col)
     {
-        if(col.gameObject.tag == "wall")
+        if (col.gameObject.tag == "wall")
         {
             float wallNormalX = col.contacts[0].normal.x;
             float wallNormalY = col.contacts[0].normal.y;
@@ -187,28 +188,29 @@ private float[] outputs(float[] inputs)
             rb.MovePosition(transform.position + new Vector3(wallNormalX * offset, wallNormalY * offset, 0));
             score -= 25f * Time.deltaTime;
         }
-    }       
+    }
 
-private void OnCollisionEnter2D(Collision2D col)
-{
-    if (col.gameObject.tag == "edge")
+    private void OnCollisionEnter2D(Collision2D col)
     {
-        float edgeNormalX = col.contacts[0].normal.x;
-        float edgeNormalY = col.contacts[0].normal.y;
-        float offset = 0.1f; // Adjust this value to control the amount of offset
-        if (edgeNormalX > 0.9f || edgeNormalX < -0.9f) // Check if the collision is with the left or right edge
+        if (col.gameObject.tag == "edge")
         {
-            rb.MovePosition(transform.position + new Vector3(edgeNormalX * offset, 0, 0));
+            float edgeNormalX = col.contacts[0].normal.x;
+            float edgeNormalY = col.contacts[0].normal.y;
+            float offset = 0.1f; // Adjust this value to control the amount of offset
+            if (Mathf.Abs(edgeNormalX) > 0.9f) // Check if the collision is with the left or right edge
+            {
+                rb.MovePosition(transform.position + new Vector3(edgeNormalX            * offset, 0, 0));
+            }
+            else if (Mathf.Abs(edgeNormalY) > 0.9f) // Check if the collision is with the top or bottom edge
+            {
+                rb.MovePosition(transform.position + new Vector3(0, edgeNormalY * offset, 0));
+            }
         }
-        else if (edgeNormalY > 0.9f || edgeNormalY < -0.9f) // Check if the collision is with the top or bottom edge
+        else if (col.gameObject.tag == "plr")
         {
-            rb.MovePosition(transform.position + new Vector3(0, edgeNormalY * offset, 0));
+            score += 10000;
+            foundPlayer = true;
         }
     }
-    else if (col.gameObject.tag == "plr")
-    {
-        score += 10000;
-        foundPlayer = true;
-    }
 }
-}
+
