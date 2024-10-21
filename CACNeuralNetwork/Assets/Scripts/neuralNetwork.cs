@@ -143,6 +143,8 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
+        destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
+        destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
         random = new System.Random(); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
