@@ -10,8 +10,8 @@ using System.Xml;
 public class neuralNetwork : MonoBehaviour
 {
     [SerializeField] System.Random random;
-    float destinationX = 4f;
-    float destinationY = 12f;
+    float destinationX;
+    float destinationY;
     public float score = 0f;
     [SerializeField] int[] layers; //amount of neurons in each layer
     [SerializeField] float[][] neurons; //layer of neuron, specific neuron
