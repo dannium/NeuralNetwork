@@ -64,29 +64,28 @@ public class neuralNetwork : MonoBehaviour
         return array;
     }
 
-    private float[] outputs(float[] inputs)
+private float[] outputs(float[] inputs)
+{
+    for (int i = 0; i < inputs.Length; i++)
     {
-        for (int i = 0; i < inputs.Length; i++)
-        {
-            neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
-        }
-
-        for (int i = 1; i < layers.Length; i++) // Loop through each layer starting from the first hidden layer
-        {
-            for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
-            {
-                float value = bias;
-                for (int k = 0; k < neurons[i-1].Length; k++) // Loop through each neuron in the previous layer
-                {
-                    print(i + ", " + j + ", " + k);
-                    value += weights[i - 1][j][k] * neurons[i - 1][k];
-                }
-                neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
-            }
-        }
-
-        return neurons[neurons.Length - 1];
+        neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
     }
+
+    for (int i = 1; i < layers.Length; i++) // Loop through each layer starting from the first hidden layer
+    {
+        for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
+        {
+            float value = neurons[i - 1][0] * weights[i - 1][0][j]; // Replace "print(i + ", " + j + ", " + k);" with the correct math operation
+            for (int k = 1; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
+            {
+                value += neurons[i - 1][k] * weights[i - 1][k][j];
+            }
+            neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
+        }
+    }
+
+    return neurons[neurons.Length - 1];
+}
 
     public GameObject createChild(int id)
     {
