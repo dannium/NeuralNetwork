@@ -23,6 +23,8 @@ public class neuralNetwork : MonoBehaviour
 
     public float mutateChance; // write as percent
 
+    public int id;
+
     private void initNeurons()
     {
         neurons = new float[layerAmount][];
@@ -34,7 +36,7 @@ public class neuralNetwork : MonoBehaviour
 
     private void initWeights()
     {
-        print(name);
+        print(id);
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
@@ -86,7 +88,7 @@ public class neuralNetwork : MonoBehaviour
         GameObject Child = Instantiate(transform.gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
-
+        nn.id = this.id;
         nn.random = new System.Random();     
         nn.layers = new int[layerAmount];
         nn.layerAmount = layerAmount; 
@@ -134,7 +136,7 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
-        random = new System.Random(); // Initialize the random variable        
+        random = new System.Random(id); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
         {

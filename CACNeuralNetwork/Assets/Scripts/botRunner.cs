@@ -21,6 +21,7 @@ public class botRunner : MonoBehaviour
         {
             bots[botNum - 1] = Instantiate(bot);
             bots[botNum - 1].name = (botNum).ToString();
+            bots[botNum - 1].GetComponent<neuralNetwork>().id = botNum;
             scores[botNum - 1] = bots[botNum - 1].GetComponent<neuralNetwork>().score;
         }
     }
