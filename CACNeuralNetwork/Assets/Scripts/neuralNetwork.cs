@@ -14,7 +14,7 @@ public class neuralNetwork : MonoBehaviour
     public float score = 0f;
     [SerializeField] int[] layers; //amount of neurons in each layer
     [SerializeField] float[][] neurons; //layer of neuron, specific neuron
-    [SerializeField] float[][][] weights; //layer of weight, neuron weight affects, weight's value
+    public float[][][] weights; //layer of weight, neuron weight affects, weight's value
 
     public int layerAmount; //number of layers in network (probably gonna be 4)
     public int[] neuronAmount; //number of nuerons in each layer
@@ -37,6 +37,7 @@ public class neuralNetwork : MonoBehaviour
     private void initWeights()
     {
         print(id);
+        UnityEngine.Random.InitState(id);
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {
@@ -47,7 +48,7 @@ public class neuralNetwork : MonoBehaviour
 
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
-                    weights[i][j][k] = (float)random.NextDouble() - 0.5f; //sets each weight
+                    weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f); //sets each weight
                 }
             }
         }
@@ -80,6 +81,7 @@ public class neuralNetwork : MonoBehaviour
                 neurons[i][j] = (float)Math.Tanh(value); // Set value between -1 and 1
             }
         }
+
         return neurons[layerAmount - 1];
     }
 
@@ -118,7 +120,8 @@ public class neuralNetwork : MonoBehaviour
                 {
                     if(mutateChance < UnityEngine.Random.Range(1, 100))
                     {
-                        weights[i][j][k] = (float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
+                        weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f);
+                        //(float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
                     }
                     else
                     {
@@ -136,7 +139,7 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
-        random = new System.Random(id); // Initialize the random variable        
+        random = new System.Random(); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
         {
@@ -153,6 +156,6 @@ public class neuralNetwork : MonoBehaviour
     {
         transform.position = new Vector2(transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] *Time.deltaTime); //changes bots position based on outputs
         score += outputs(inputs())[0];
-        score += outputs(inputs())[1];
+//        score += outputs(inputs())[1];
     }
 }
