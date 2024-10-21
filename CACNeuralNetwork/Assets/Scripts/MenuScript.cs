@@ -20,7 +20,7 @@ public class MenuScript : MonoBehaviour
 
     public void Play()
     {
-        SceneManager.LoadSceneAsync(0);
+        SceneManager.LoadSceneAsync(1);
     }
 
     public void HowToPlay()
