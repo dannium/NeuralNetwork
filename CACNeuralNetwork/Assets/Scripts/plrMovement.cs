@@ -28,6 +28,7 @@ public class plrMovement : MonoBehaviour
         {
             Destroy(txt);
             spriteRenderer.color = a;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
         }
     }
 }
