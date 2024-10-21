@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8fd9ee3161588e942875eea24c84d3ab
+guid: a6f2748f2478fd84387ffb464bfbea6a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,13 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: imagepsuedo_0
+      name: NNHackerHideAndSeekSpritesForTheGameThatWillBeCompletedVerySoonHopefullyAndIfNotThenIWillBeSadBecauseTheseSpritesLookSoCoolRight_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 130
-        width: 128
-        height: 128
+        y: 0
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +137,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0ca799e4674a6834ebd11c271d84b3ca
-      internalID: -951624111
+      spriteID: 388ca1deb0f4f244cb5519c844cb5e5d
+      internalID: 1098365892
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: imagepsuedo_1
+      name: NNHackerHideAndSeekSpritesForTheGameThatWillBeCompletedVerySoonHopefullyAndIfNotThenIWillBeSadBecauseTheseSpritesLookSoCoolRight_1
       rect:
         serializedVersion: 2
-        x: 128
-        y: 130
-        width: 128
-        height: 128
+        x: 16
+        y: 0
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,134 +158,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2bb703b8854f7b84fa28b28bcc5132f7
-      internalID: -1666255987
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: imagepsuedo_2
-      rect:
-        serializedVersion: 2
-        x: 256
-        y: 130
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ebac51a550233de479a82eef23064b1d
-      internalID: 1799409698
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: imagepsuedo_3
-      rect:
-        serializedVersion: 2
-        x: 384
-        y: 130
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d21e0b943f595e0468089562f7b70aab
-      internalID: -296547173
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: imagepsuedo_4
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 2
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d0dba37a30b37954296151335dfedb41
-      internalID: -964646363
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: imagepsuedo_5
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 2
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ed5ae46e5a75f5045b8df1b3a434e00e
-      internalID: 1669998912
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: imagepsuedo_6
-      rect:
-        serializedVersion: 2
-        x: 256
-        y: 2
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0bcca578a5c8670448009fe675d7755a
-      internalID: 731941049
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: imagepsuedo_7
-      rect:
-        serializedVersion: 2
-        x: 384
-        y: 2
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 062e73aa1fc579f4eb68293a9e42d84f
-      internalID: -1195565330
+      spriteID: cfefc914da6fbbf49b7b4afb644e9b12
+      internalID: -2025324670
       vertices: []
       indices: 
       edges: []
@@ -301,14 +175,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      imagepsuedo_0: -951624111
-      imagepsuedo_1: -1666255987
-      imagepsuedo_2: 1799409698
-      imagepsuedo_3: -296547173
-      imagepsuedo_4: -964646363
-      imagepsuedo_5: 1669998912
-      imagepsuedo_6: 731941049
-      imagepsuedo_7: -1195565330
+      NNHackerHideAndSeekSpritesForTheGameThatWillBeCompletedVerySoonHopefullyAndIfNotThenIWillBeSadBecauseTheseSpritesLookSoCoolRight_0: 1098365892
+      NNHackerHideAndSeekSpritesForTheGameThatWillBeCompletedVerySoonHopefullyAndIfNotThenIWillBeSadBecauseTheseSpritesLookSoCoolRight_1: -2025324670
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
