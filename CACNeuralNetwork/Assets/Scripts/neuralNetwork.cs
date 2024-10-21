@@ -178,17 +178,40 @@ public class neuralNetwork : MonoBehaviour
         score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime;
     }
 
-    private void OnCollisionStay2D(Collision2D col)
+private void OnCollisionStay2D(Collision2D col)
+{
+    if (col.gameObject.tag == "wall")
     {
-        if (col.gameObject.tag == "wall")
+        float wallNormalX = col.contacts[0].normal.x;
+        float wallNormalY = col.contacts[0].normal.y;
+        float offset = 0.1f; // Adjust this value to control the amount of offset
+
+        // Move the bot slightly away from the wall
+        rb.MovePosition(transform.position + new Vector3(wallNormalX * offset, wallNormalY * offset, 0));
+
+        // Adjust direction based on wall normal to continue movement
+        float moveDirectionX = outputs(inputs())[0];
+        float moveDirectionY = outputs(inputs())[1];
+
+        // Check if moving directly against the wall
+        if (Mathf.Abs(wallNormalX) > 0.9f)
         {
-            float wallNormalX = col.contacts[0].normal.x;
-            float wallNormalY = col.contacts[0].normal.y;
-            float offset = 0.1f; // Adjust this value to control the amount of offset
-            rb.MovePosition(transform.position + new Vector3(wallNormalX * offset, wallNormalY * offset, 0));
-            score -= 25f * Time.deltaTime;
+            // Reverse X direction with a small variation
+            moveDirectionX = -moveDirectionX + UnityEngine.Random.Range(-0.1f, 0.1f);
         }
+        if (Mathf.Abs(wallNormalY) > 0.9f)
+        {
+            // Reverse Y direction with a small variation
+            moveDirectionY = -moveDirectionY + UnityEngine.Random.Range(-0.1f, 0.1f);
+        }
+
+        // Apply the new movement direction
+        rb.MovePosition(new Vector2(transform.position.x + moveDirectionX * Time.deltaTime * 20, 
+                                     transform.position.y + moveDirectionY * Time.deltaTime * 20));
+
+        score -= 25f * Time.deltaTime;
     }
+}
 
     private void OnCollisionEnter2D(Collision2D col)
     {
