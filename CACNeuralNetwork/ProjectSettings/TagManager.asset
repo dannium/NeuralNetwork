@@ -6,6 +6,7 @@ TagManager:
   tags:
   - bot
   - wall
+  - plr
   layers:
   - Default
   - TransparentFX
