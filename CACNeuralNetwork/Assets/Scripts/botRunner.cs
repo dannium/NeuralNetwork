@@ -29,7 +29,10 @@ public class botRunner : MonoBehaviour
     {
         for(int i = 0; i < scores.Length - 1; i++)
         {
+            print(scores[i] + "a");
+            print(bots[i] + "b");
             scores[i] = bots[i].GetComponent<neuralNetwork>().score;
+
         }
         float medianScore = GetMedian(scores);
         // lists are more optimized
@@ -114,7 +117,7 @@ public class botRunner : MonoBehaviour
     {
 
         timer += Time.deltaTime;
-        if(timer >= 100)
+        if(timer >= 250)
         {
             timer = 0;
             nextGen();

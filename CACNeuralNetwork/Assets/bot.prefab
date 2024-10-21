@@ -102,5 +102,5 @@ MonoBehaviour:
   layerAmount: 4
   neuronAmount: 020000000a0000000a00000002000000
   bias: 0.25
-  mutateChance: 3
+  mutateChance: 5
   id: 0

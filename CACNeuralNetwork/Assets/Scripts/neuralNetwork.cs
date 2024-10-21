@@ -120,7 +120,7 @@ public class neuralNetwork : MonoBehaviour
                 {
                     if(mutateChance < UnityEngine.Random.Range(1, 100))
                     {
-                        weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f);
+                        weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f) * (float)random.NextDouble();
                         //(float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
                     }
                     else
@@ -155,7 +155,10 @@ public class neuralNetwork : MonoBehaviour
     void Update()
     {
         transform.position = new Vector2(transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] *Time.deltaTime); //changes bots position based on outputs
-        score += outputs(inputs())[0];
-//        score += outputs(inputs())[1];
+                                                                                                                                                                     // score += outputs(inputs())[0];
+                                                                                                                                                                     //        score += outputs(inputs())[1];
+        score -= MathF.Abs(transform.position.y);
+        score += transform.position.x;
+
     }
 }
