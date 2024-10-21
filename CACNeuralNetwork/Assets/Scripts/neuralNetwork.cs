@@ -78,7 +78,7 @@ public class neuralNetwork : MonoBehaviour
                 float value = bias;
                 for (int k = 0; k < neuronAmount[i - 1]; k++) // Loop through each neuron in the previous layer
                 {
-                    value += weights[i - 1][k][j] * neurons[i - 1][k];
+                    value += weights[i - 1][j][k] * neurons[i - 1][k];
                 }
                 neurons[i][j] = (float)Math.Tanh(value); // Set value between -1 and 1
             }
