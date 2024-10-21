@@ -79,7 +79,7 @@ public class botRunner : MonoBehaviour
 
         // set first half of bots array to the bots that survived
         int index = 0;
-        for (int i = 0; i < botsList.Count - 1; i++)
+        for (int i = 0; i < botsList.Count; i++)
         {
             botsList[i].transform.position = Vector2.zero;
             bots[i] = botsList[i];
@@ -96,10 +96,10 @@ public class botRunner : MonoBehaviour
             }
             else
             {
-                // If no parent is available, instantiate a new bot
-                //bots[i] = Instantiate(bot);
-                //bots[i].name = "AHHHHHHHHHHHHH";
-                //botNum++;
+                //If no parent is available, instantiate a new bot
+                bots[i] = Instantiate(botsList[UnityEngine.Random.Range(0, botsList.Count - 1)]);
+                bots[i].name = "AHHHHHHHHHHHHH";
+                botNum++;
             }
         }
     }
