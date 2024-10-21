@@ -138,7 +138,7 @@ public class botRunner : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && !start)
         {
             firstGen();
-            start = false;
+            start = true;
         }
 
         if (start)
