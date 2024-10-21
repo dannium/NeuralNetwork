@@ -10,7 +10,7 @@ public class botRunner : MonoBehaviour
 {
     public int botAmount;//needs to be even
     public GameObject bot;
-    GameObject[] bots;
+    public GameObject[] bots;
     float[] scores;
     int botNum;
     float timer = 0;
@@ -29,10 +29,29 @@ public class botRunner : MonoBehaviour
     {
         for(int i = 0; i < scores.Length - 1; i++)
         {
-            print(scores[i] + "a");
-            print(bots[i] + "b");
-            scores[i] = bots[i].GetComponent<neuralNetwork>().score;
+            if (bots[i] == null)
+            {
+                Debug.LogError("bots[i] is null");
+            }
+            else
+            {
+                var neuralNetworkComponent = bots[i].GetComponent<neuralNetwork>();
+                if (neuralNetworkComponent == null)
+                {
+                    Debug.LogError("neuralNetwork component is not found on bots[i]");
+                }
+                else
+                {
+                    float score = neuralNetworkComponent.score;
+                    Debug.Log("Score: " + score);
+                }
+            }
 
+            /* print(scores[i] + "a");
+             print(bots[i] + "b");*/
+            /*float score = bots[i].GetComponent<neuralNetwork>().score;
+            scores[i] = score;
+            print(i);*/  
         }
         float medianScore = GetMedian(scores);
         // lists are more optimized
@@ -57,9 +76,8 @@ public class botRunner : MonoBehaviour
 
         // set first half of bots array to the bots that survived
         int index = 0;
-        for (int i = 0; i < botsList.Count; i++)
+        for (int i = 0; i < botsList.Count - 1; i++)
         {
-            scores[i] = 0;
             botsList[i].transform.position = Vector2.zero;
             bots[i] = botsList[i];
             index++;
@@ -70,7 +88,6 @@ public class botRunner : MonoBehaviour
             if (i - index < botsList.Count && botsList[i - index] != null) // Make sure there is a parent bot to create a child from
             {
                 scores[i] = 0;
-                botsList[i].GetComponent<neuralNetwork>().score = 0;
                 bots[i] = botsList[i - index].GetComponent<neuralNetwork>().createChild(botNum);
                 botNum++;
             }

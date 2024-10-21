@@ -156,7 +156,7 @@ public class neuralNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       rb.AddForce(new Vector2(outputs(inputs())[0] * Time.deltaTime, outputs(inputs())[1] *Time.deltaTime)); //changes bots position based on outputs
+       rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] * Time.deltaTime)); //changes bots position based on outputs
                                                                                                                                                                      // score += outputs(inputs())[0];
                                                                                                                                                                      //        score += outputs(inputs())[1];
         score -= MathF.Abs(transform.position.y);
