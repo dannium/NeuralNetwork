@@ -161,8 +161,16 @@ public class neuralNetwork : MonoBehaviour
         rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
                                                                                                                                                                                        // score += outputs(inputs())[0];
                                                                                                                                                                                        //        score += outputs(inputs())[1];
-        score -= MathF.Abs(transform.position.y);
-        score += transform.position.x;
+        score -= MathF.Abs(transform.position.y) * Time.deltaTime;
+        score += transform.position.x  * Time.deltaTime;
 
+    }
+
+    private void OnCollisionStay2D(Collision2D col)
+    {
+        if(col.gameObject.tag == "wall")
+        {
+            score -= 5f * Time.deltaTime;
+        }
     }
 }
