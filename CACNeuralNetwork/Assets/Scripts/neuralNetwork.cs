@@ -88,13 +88,15 @@ public class neuralNetwork : MonoBehaviour
 
     public GameObject createChild(int id)
     {
+        score = 0;
         GameObject Child = Instantiate(transform.gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
+        nn.score = 0;
         nn.id = this.id;
-        nn.random = new System.Random();     
+        nn.random = new System.Random();
         nn.layers = new int[layerAmount];
-        nn.layerAmount = layerAmount; 
+        nn.layerAmount = layerAmount;
         nn.neuronAmount = neuronAmount;
         nn.bias = bias;
         nn.destinationX = destinationX;
@@ -119,7 +121,7 @@ public class neuralNetwork : MonoBehaviour
 
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
-                    if(mutateChance < UnityEngine.Random.Range(1, 100))
+                    if (mutateChance < UnityEngine.Random.Range(1, 100))
                     {
                         weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f) * (float)random.NextDouble();
                         //(float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
@@ -156,9 +158,9 @@ public class neuralNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] * Time.deltaTime)); //changes bots position based on outputs
-                                                                                                                                                                     // score += outputs(inputs())[0];
-                                                                                                                                                                     //        score += outputs(inputs())[1];
+        rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
+                                                                                                                                                                                       // score += outputs(inputs())[0];
+                                                                                                                                                                                       //        score += outputs(inputs())[1];
         score -= MathF.Abs(transform.position.y);
         score += transform.position.x;
 
