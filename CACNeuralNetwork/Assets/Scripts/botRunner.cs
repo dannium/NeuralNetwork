@@ -112,13 +112,9 @@ public class botRunner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-<<<<<<< HEAD
+
         timer += Time.deltaTime;
         if(timer >= 100)
-=======
-        timer++;
-        if(timer % 100 == 0)
->>>>>>> 4574b1b8099d8fe11066059b9a8085b4a987853a
         {
             timer = 0;
             nextGen();
