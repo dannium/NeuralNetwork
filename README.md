@@ -2,7 +2,7 @@
 
 
 ### - Overview -
-In this game, bots are trained to seek out the hider (the player) using neural networks, improving their ability to find the hider with every generation. *[project name]* is designed for teens interested in computer science and machine learning, offering an engaging, hands-on experience that simulates how neural networks operate and evolve over time.
+In this game, bots are trained to seek out the hider (the player) using neural networks, improving their ability to find the hider with every generation. Hidden Data is designed for teens interested in computer science and machine learning, offering an engaging, hands-on experience that simulates how neural networks operate and evolve over time.
 <hr>
 
 ### - How it Works -
