@@ -75,7 +75,8 @@ private float[] outputs(float[] inputs)
     {
         for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
         {
-            float value = neurons[i - 1][0] * weights[i - 1][0][j]; // Replace "print(i + ", " + j + ", " + k);" with the correct math operation
+                //print(neurons[i - 1][j]);
+                float value = 0.25f;//neurons[i - 1][0] * weights[i - 1][0][j]; // Replace "print(i + ", " + j + ", " + k);" with the correct math operation
             for (int k = 1; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
             {
                 value += neurons[i - 1][k] * weights[i - 1][k][j];
@@ -165,7 +166,7 @@ private float[] outputs(float[] inputs)
         {
             rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
         }
-        if(name == "17")
+        if(name == "11")
         {
             print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
         }
@@ -180,16 +181,34 @@ private float[] outputs(float[] inputs)
     {
         if(col.gameObject.tag == "wall")
         {
+            float wallNormalX = col.contacts[0].normal.x;
+            float wallNormalY = col.contacts[0].normal.y;
+            float offset = 0.1f; // Adjust this value to control the amount of offset
+            rb.MovePosition(transform.position + new Vector3(wallNormalX * offset, wallNormalY * offset, 0));
             score -= 25f * Time.deltaTime;
         }
-    }
+    }       
 
-    private void OnCollisionEnter2D(Collision2D col)
+private void OnCollisionEnter2D(Collision2D col)
+{
+    if (col.gameObject.tag == "edge")
     {
-        if (col.gameObject.tag == "plr")
+        float edgeNormalX = col.contacts[0].normal.x;
+        float edgeNormalY = col.contacts[0].normal.y;
+        float offset = 0.1f; // Adjust this value to control the amount of offset
+        if (edgeNormalX > 0.9f || edgeNormalX < -0.9f) // Check if the collision is with the left or right edge
         {
-            score += 10000;
-            foundPlayer = true;
+            rb.MovePosition(transform.position + new Vector3(edgeNormalX * offset, 0, 0));
+        }
+        else if (edgeNormalY > 0.9f || edgeNormalY < -0.9f) // Check if the collision is with the top or bottom edge
+        {
+            rb.MovePosition(transform.position + new Vector3(0, edgeNormalY * offset, 0));
         }
     }
+    else if (col.gameObject.tag == "plr")
+    {
+        score += 10000;
+        foundPlayer = true;
+    }
+}
 }
