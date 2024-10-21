@@ -43,12 +43,12 @@ public class neuralNetwork : MonoBehaviour
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {  
-            weights[i] = new float[neuronAmount[i + 1]][]; //creates array for weights coming from layer i
-            for (int j = 0; j < neuronAmount[i + 1]; j++)
+            weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
+            for (int j = 0; j < neuronAmount[i]; j++)
             {
                 weights[i][j] = new float[neuronAmount[i]]; //creates an array of weights based on the amount of neurons the weights come from
 
-                for (int k = 0; k < neuronAmount[i + 1]; k++)
+                for (int k = 0; k < neuronAmount[i]; k++)
                 {
                     weights[i][j][k] = (float)random.NextDouble() - 0.5f;
                     print(i + ", " + j + ", " + k);
