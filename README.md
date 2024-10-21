@@ -22,5 +22,5 @@ In addition to watching how the bots refine themselves over each generation, pla
 <hr>
 
 ### - About Us -
-Created by `Jacob Bancroft`, `Danny Reilly`, `Luke Evenson`, and `Eamon Brisson`, freshmen at North Kingstown High School in Rhode Island, for the *2024 Congressional App Challenge*.
+"Hidden Data" was created by `Jacob Bancroft`, `Danny Reilly`, `Luke Evenson`, and `Eamon Brisson`, freshmen at North Kingstown High School in Rhode Island, for the *2024 Congressional App Challenge*.
 
