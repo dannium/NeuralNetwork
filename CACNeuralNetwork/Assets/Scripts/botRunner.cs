@@ -70,6 +70,7 @@ public class botRunner : MonoBehaviour
             if (i - index < botsList.Count && botsList[i - index] != null) // Make sure there is a parent bot to create a child from
             {
                 scores[i] = 0;
+                botsList[i].GetComponent<neuralNetwork>().score = 0;
                 bots[i] = botsList[i - index].GetComponent<neuralNetwork>().createChild(botNum);
                 botNum++;
             }
