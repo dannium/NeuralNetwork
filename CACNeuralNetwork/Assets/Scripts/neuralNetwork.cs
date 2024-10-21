@@ -4,15 +4,16 @@ using UnityEngine;
 using System;
 using TMPro;
 using Unity.VisualScripting;
+using System.Threading;
 
 public class neuralNetwork : MonoBehaviour
 {
     [SerializeField] System.Random random;
     float destinationX = 10f;
     float destinationY = 10f;
-    //idk if we need the constructor, so i didnt add it, make sure to comment a bunch
+    public float score = 0f;
     [SerializeField] int[] layers; //amount of neurons in each layer
-    public float[][] neurons; //layer of neuron, specific neuron
+    [SerializeField] float[][] neurons; //layer of neuron, specific neuron
     [SerializeField] float[][][] weights; //layer of weight, neuron weight affects, weight's value
 
     public int layerAmount; //number of layers in network (probably gonna be 4)
@@ -20,6 +21,7 @@ public class neuralNetwork : MonoBehaviour
 
     public float bias; // starting weight for all weights
 
+    public float mutateChance; // write as percent
 
     private void initNeurons()
     {
@@ -84,8 +86,14 @@ public class neuralNetwork : MonoBehaviour
         neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
 
-        nn.random = new System.Random(); // Initialize the random variable        
+        nn.random = new System.Random();     
         nn.layers = new int[layerAmount];
+        nn.layerAmount = layerAmount; 
+        nn.neuronAmount = neuronAmount;
+        nn.bias = bias;
+        nn.destinationX = destinationX;
+        nn.destinationY = destinationY;
+        nn.mutateChance = mutateChance;
         for (int i = 0; i < layerAmount; i++)
         {
             nn.layers[i] = neuronAmount[i]; // Set each layer to the corresponding number of neurons
@@ -105,7 +113,14 @@ public class neuralNetwork : MonoBehaviour
 
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
-                    nn.weights[i][j][k] = weights[i][j][k]; //sets each weight to parent's weight
+                    if(mutateChance < UnityEngine.Random.Range(1, 100))
+                    {
+                        weights[i][j][k] = (float)random.NextDouble() - 0.5f; //mutates (changes) weight to new random num
+                    }
+                    else
+                    {
+                        nn.weights[i][j][k] = weights[i][j][k]; //sets weight to parent's weight
+                    }
                 }
             }
         }
@@ -118,7 +133,7 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
-        random = new System.Random(); // Initialize the random variable        
+        random = new System.Random(int.Parse(name)); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
         {
@@ -134,6 +149,7 @@ public class neuralNetwork : MonoBehaviour
     void Update()
     {
         transform.position = new Vector2(transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] *Time.deltaTime); //changes bots position based on outputs
-        //print(new Vector2(outputs(inputs())[0], outputs(inputs())[1]));
+        score += outputs(inputs())[0];
+        score += outputs(inputs())[1];
     }
 }
