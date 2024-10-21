@@ -80,6 +80,7 @@ public class neuralNetwork : MonoBehaviour
                 {
                     //value += weights[i - 1][j][k];//* neurons[i - 1][k]; //adds the product of the weight
                     print(j);
+                    value += weights[i - 1][j][k] * neurons[i - 1][k];
                 }
                 neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
             }
