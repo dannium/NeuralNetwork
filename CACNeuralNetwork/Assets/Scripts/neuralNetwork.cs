@@ -88,9 +88,11 @@ public class neuralNetwork : MonoBehaviour
 
     public GameObject createChild(int id)
     {
+        score = 0;
         GameObject Child = Instantiate(transform.gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
         Child.name = id.ToString();
+        nn.score = 0;
         nn.id = this.id;
         nn.random = new System.Random();     
         nn.layers = new int[layerAmount];
@@ -156,7 +158,7 @@ public class neuralNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime, transform.position.y + outputs(inputs())[1] * Time.deltaTime)); //changes bots position based on outputs
+       rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
                                                                                                                                                                      // score += outputs(inputs())[0];
                                                                                                                                                                      //        score += outputs(inputs())[1];
         score -= MathF.Abs(transform.position.y);
