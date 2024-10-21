@@ -10,6 +10,7 @@ public class TimePause : MonoBehaviour
     public TimeSlider TS;
     public TMP_Text buttonTxt;
     public GameObject pauseMenu;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,7 +32,6 @@ public class TimePause : MonoBehaviour
             buttonTxt.text = "Pause";
             pauseMenu.SetActive(false);
         }
-
     }
 
     public void OnClick()
@@ -41,8 +41,14 @@ public class TimePause : MonoBehaviour
 
     public void QuitButton()
     {
-        SceneManager.LoadSceneAsync(0);
+        // If running in the editor, stop playing
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
+
     public void RestartButton()
     {
         SceneManager.LoadSceneAsync(1);
