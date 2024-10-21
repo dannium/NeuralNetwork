@@ -97,7 +97,7 @@ public class botRunner : MonoBehaviour
             else
             {
                 //If no parent is available, instantiate a new bot
-                bots[i] = Instantiate(botsList[UnityEngine.Random.Range(0, botsList.Count - 1)]);
+                bots[i] = Instantiate(botsList[0]);
                 bots[i].name = "AHHHHHHHHHHHHH";
                 botNum++;
             }

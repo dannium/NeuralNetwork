@@ -25,6 +25,7 @@ public class neuralNetwork : MonoBehaviour
 
     public int id;
     Rigidbody2D rb;
+    bool foundPlayer = false;
 
     private void initNeurons()
     {
@@ -142,6 +143,8 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         //transform.GetComponentInChildren<TextMeshProUGUI>().text = name.ToString();
+        destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
+        destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
         random = new System.Random(); // Initialize the random variable        
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
@@ -158,9 +161,12 @@ public class neuralNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
-                                                                                                                                                                                       // score += outputs(inputs())[0];
-                                                                                                                                                                                       //        score += outputs(inputs())[1];
+        if(!foundPlayer)
+        {
+            rb.MovePosition(new Vector2(gameObject.transform.position.x + outputs(inputs())[0] * Time.deltaTime * 20, transform.position.y + outputs(inputs())[1] * Time.deltaTime * 20)); //changes bots position based on outputs
+        }
+        // score += outputs(inputs())[0];
+        //        score += outputs(inputs())[1];
         score -= (transform.position.y - destinationY) * Time.deltaTime;
         score -= (transform.position.x - destinationX)  * Time.deltaTime;
 
@@ -171,6 +177,15 @@ public class neuralNetwork : MonoBehaviour
         if(col.gameObject.tag == "wall")
         {
             score -= 25f * Time.deltaTime;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "plr")
+        {
+            score += 10000;
+            foundPlayer = true;
         }
     }
 }
