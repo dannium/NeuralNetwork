@@ -16,7 +16,6 @@ public class botRunner : MonoBehaviour
     float timer = 0;
 
     [SerializeField] public bool start = false;
-    public plrMovement PM;
     void firstGen()
     {
         for (botNum = 1; botNum < bots.Length + 1; botNum++)
@@ -143,7 +142,6 @@ public class botRunner : MonoBehaviour
 
         if (start)
         {
-            PM.speed = 0;
         timer += Time.deltaTime;
         if (timer >= 10)
         {
