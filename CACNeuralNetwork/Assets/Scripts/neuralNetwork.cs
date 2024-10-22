@@ -294,7 +294,7 @@ public class neuralNetwork : MonoBehaviour
         score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.5f;
 
         // Check if all bots have finished or a time limit has been reached
-        if (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f) // 60 seconds time limit
+        if (population.Count > 0 && (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f)) // 60 seconds time limit
         {
             EvolvePopulation();
         }
@@ -390,11 +390,12 @@ public class neuralNetwork : MonoBehaviour
         population.Sort((a, b) => b.score.CompareTo(a.score));
 
         // Keep the top performers (elites)
-        int eliteCount = Mathf.RoundToInt(populationSize * elitePercentage);
+        int eliteCount = Mathf.Max(1, Mathf.RoundToInt(populationSize * elitePercentage));
+        eliteCount = Mathf.Min(eliteCount, population.Count); // Ensure eliteCount doesn't exceed population size
         List<neuralNetwork> newPopulation = new List<neuralNetwork>(population.GetRange(0, eliteCount));
 
         // Create new individuals through crossover and mutation
-        while (newPopulation.Count < populationSize)
+        while (newPopulation.Count < populationSize && population.Count > 1)
         {
             neuralNetwork parent1 = SelectParent();
             neuralNetwork parent2 = SelectParent();
@@ -425,8 +426,14 @@ public class neuralNetwork : MonoBehaviour
 
     private static neuralNetwork SelectParent()
     {
+        if (population.Count == 0)
+        {
+            Debug.LogError("Cannot select parent: population is empty");
+            return null;
+        }
+
         // Tournament selection
-        int tournamentSize = 5;
+        int tournamentSize = Mathf.Min(5, population.Count);
         neuralNetwork best = null;
         for (int i = 0; i < tournamentSize; i++)
         {
@@ -441,6 +448,12 @@ public class neuralNetwork : MonoBehaviour
 
     private static neuralNetwork Crossover(neuralNetwork parent1, neuralNetwork parent2)
     {
+        if (parent1 == null || parent2 == null)
+        {
+            Debug.LogError("Cannot perform crossover: one or both parents are null");
+            return null;
+        }
+
         neuralNetwork child = Instantiate(parent1.gameObject).GetComponent<neuralNetwork>();
         child.isInitialPopulation = false; // Set this to false for new children
 
@@ -462,6 +475,12 @@ public class neuralNetwork : MonoBehaviour
 
     private static void Mutate(neuralNetwork bot)
     {
+        if (bot == null)
+        {
+            Debug.LogError("Cannot mutate: bot is null");
+            return;
+        }
+
         for (int i = 0; i < bot.weights.Length; i++)
         {
             for (int j = 0; j < bot.weights[i].Length; j++)
