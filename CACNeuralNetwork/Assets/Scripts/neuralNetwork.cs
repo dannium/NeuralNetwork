@@ -27,50 +27,50 @@ public class neuralNetwork : MonoBehaviour
     public int id;
     Rigidbody2D rb;
     bool foundPlayer = false;
-    float moveSpeed = 3f; // Reduced move speed for more natural movement
+    float moveSpeed = 3f;
 
-    // New variables for improved exploration
-    private Vector2 lastPosition;
-    private float stuckTime = 0f;
-    private float stuckThreshold = 0.5f; // Increased time before considering the bot stuck
-    private float explorationTimer = 0f;
-    private float explorationInterval = 3f; // Increased time between direction changes
+    // Simplified variables for exploration
     private Vector2 currentExplorationDirection;
-    private float wallAvoidanceForce = 4f; // Reduced force to apply when avoiding walls
-    private float wallDetectionDistance = 1.5f;
+    private float explorationTimer = 0f;
+    private float explorationInterval = 5f;
     private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
-    private float cellSize = 1f; // Size of each cell in the grid
+    private float cellSize = 2f;
 
-    // New variables for smoother movement
-    private float accelerationRate = 5f;
-    private float decelerationRate = 3f;
+    // Simplified movement variables
     private Vector2 currentVelocity;
     private Vector2 targetVelocity;
+    private float smoothTime = 0.3f;
+    private float accelerationRate = 10f;
+    private float decelerationRate = 5f;
+    private float minimumMovementSpeed = 0.5f;
 
-    // New variables for improved evolution
+    // Simplified wall interaction
+    private float wallRepelForce = 2f;
+    private float wallRepelDistance = 1.5f;
+    private float wallDetectionDistance = 2f;
+    private float wallAvoidanceForce = 3f;
+
+    // Exploration variables
+    private Vector2 explorationCenter;
+    private float explorationRadius = 10f;
+
+    // Separation variables
+    private float separationDistance = 2f;
+    private float separationForce = 1.5f;
+
+    // Stuck detection
+    private Vector2 lastPosition;
+    private float stuckTime = 0f;
+    private float stuckThreshold = 1f;
+
+    // Population variables
     public static List<neuralNetwork> population = new List<neuralNetwork>();
     public static int generationCount = 0;
     public static int populationSize = 50;
     public static float elitePercentage = 0.1f;
     public static float crossoverRate = 0.7f;
 
-    // New variable to track if this bot is part of the initial population
     private bool isInitialPopulation = false;
-
-    // New variable for a more dynamic exploration strategy
-    private float explorationRadius = 5f;
-    private Vector2 explorationCenter;
-
-    // New variables for bot separation
-    private float separationDistance = 2f; // Reduced minimum distance to maintain between bots
-    private float separationForce = 5f; // Reduced force to apply for separation
-
-    // New variable to ensure minimum movement
-    private float minimumMovementSpeed = 0.5f;
-
-    // New variable for wall avoidance
-    private float wallRepelForce = 2f;
-    private float wallRepelDistance = 2f;
 
     // Initialize neurons for each layer
     private void initNeurons()
@@ -78,7 +78,7 @@ public class neuralNetwork : MonoBehaviour
         neurons = new float[layerAmount][];
         for (int i = 0; i < layerAmount; i++)
         {
-            neurons[i] = new float[neuronAmount[i]]; //creates an array of neurons for every layer
+            neurons[i] = new float[neuronAmount[i]];
         }
     }
 
@@ -87,17 +87,16 @@ public class neuralNetwork : MonoBehaviour
     {
         if (random == null)
         {
-            random = new System.Random(id); // Initialize random if it's null
+            random = new System.Random(id);
         }
         UnityEngine.Random.InitState(id);
         weights = new float[layerAmount - 1][][];
-        for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
+        for (int i = 0; i < layerAmount - 1; i++)
         {  
-            weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
+            weights[i] = new float[neuronAmount[i]][];
             for (int j = 0; j < neuronAmount[i]; j++)
             {
-                weights[i][j] = new float[neuronAmount[i+1]]; //creates an array of weights based on the amount of neurons the weights come from
-
+                weights[i][j] = new float[neuronAmount[i+1]];
                 for (int k = 0; k < neuronAmount[i+1]; k++)
                 {
                     weights[i][j][k] = (float)random.NextDouble() - 0.5f;
@@ -109,7 +108,7 @@ public class neuralNetwork : MonoBehaviour
     // Get input values for the neural network
     private float[] inputs()
     {
-        float[] array = new float[neuronAmount[0]]; // Match input size to first layer neuron count
+        float[] array = new float[neuronAmount[0]];
         array[0] = destinationX - transform.position.x;
         array[1] = destinationY - transform.position.y;
         if (neuronAmount[0] > 2)
@@ -126,24 +125,24 @@ public class neuralNetwork : MonoBehaviour
         if (inputs.Length != neuronAmount[0])
         {
             Debug.LogError($"Input length ({inputs.Length}) does not match first layer neuron count ({neuronAmount[0]})");
-            return new float[neuronAmount[layerAmount - 1]]; // Return empty output array
+            return new float[neuronAmount[layerAmount - 1]];
         }
 
         for (int i = 0; i < neuronAmount[0]; i++)
         {
-            neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
+            neurons[0][i] = inputs[i];
         }
 
-        for (int i = 1; i < layerAmount; i++) // Loop through each layer starting from the first hidden layer
+        for (int i = 1; i < layerAmount; i++)
         {
-            for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
+            for (int j = 0; j < neurons[i].Length; j++)
             {
                 float value = 0.25f;
-                for (int k = 0; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
+                for (int k = 0; k < neurons[i - 1].Length; k++)
                 {
                     value += neurons[i - 1][k] * weights[i - 1][k][j];
                 }
-                neurons[i][j] = (float)Math.Tanh(value); // Set value of current layer neuron between -1 and 1
+                neurons[i][j] = (float)Math.Tanh(value);
             }
         }
 
@@ -155,11 +154,11 @@ public class neuralNetwork : MonoBehaviour
     {
         score = 0;
         GameObject Child = Instantiate(transform.gameObject);
-        neuralNetwork nn = Child.GetComponent<neuralNetwork>(); //gets child's neural network script
+        neuralNetwork nn = Child.GetComponent<neuralNetwork>();
         Child.name = id.ToString();
         nn.score = 0;
         nn.id = this.id;
-        nn.random = new System.Random(id); // Initialize random with the id as seed
+        nn.random = new System.Random(id);
         nn.layers = new int[layerAmount];
         nn.layerAmount = layerAmount;
         nn.neuronAmount = neuronAmount;
@@ -169,20 +168,18 @@ public class neuralNetwork : MonoBehaviour
         nn.mutateChance = mutateChance;
         for (int i = 0; i < layerAmount; i++)
         {
-            nn.layers[i] = neuronAmount[i]; // Set each layer to the corresponding number of neurons
+            nn.layers[i] = neuronAmount[i];
         }
 
-        //initalize neurons and weights
         nn.initNeurons();
         nn.initWeights();
 
-        for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
+        for (int i = 0; i < layerAmount - 1; i++)
         {
-            nn.weights[i] = new float[neuronAmount[i]][]; //creates array for weights coming from layer i
+            nn.weights[i] = new float[neuronAmount[i]][];
             for (int j = 0; j < neuronAmount[i]; j++)
             {
-                nn.weights[i][j] = new float[neuronAmount[i + 1]]; //creates an array of weights based on the amount of neurons the weights come from
-
+                nn.weights[i][j] = new float[neuronAmount[i + 1]];
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
                     if (UnityEngine.Random.value < mutateChance)
@@ -383,7 +380,7 @@ public class neuralNetwork : MonoBehaviour
         if (neighborCount > 0)
         {
             separationForce /= neighborCount;
-            separationForce *= separationForce;
+            separationForce *= this.separationForce;
         }
 
         return separationForce;
@@ -424,19 +421,19 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "wall")
         {
             Vector2 wallNormal = col.contacts[0].normal;
-            float offset = 0.1f; // Reduced offset for more natural movement
+            float offset = 0.05f; // Further reduced offset for more natural movement
 
             // Move the bot slightly away from the wall
             rb.MovePosition((Vector2)transform.position + wallNormal * offset);
 
             // Set a new exploration direction away from the wall
-            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.5f);
+            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.7f);
 
-            // Add an impulse force to "bounce" off the wall
-            rb.AddForce(wallNormal * wallRepelForce, ForceMode2D.Impulse);
+            // Add a smaller impulse force to "bounce" off the wall
+            rb.AddForce(wallNormal * wallRepelForce * 0.5f, ForceMode2D.Impulse);
 
-            // Reduce the score penalty for staying on walls
-            score -= 5f * Time.deltaTime;
+            // Reduce the score penalty for touching walls
+            score -= 2f * Time.deltaTime;
         }
     }
 
@@ -446,19 +443,19 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "edge")
         {
             Vector2 edgeNormal = col.contacts[0].normal;
-            float offset = 0.1f; // Reduced offset for more natural movement
+            float offset = 0.05f; // Further reduced offset for more natural movement
 
             // Move the bot slightly away from the edge
             rb.MovePosition((Vector2)transform.position + edgeNormal * offset);
 
             // Set a new exploration direction away from the edge
-            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, edgeNormal.normalized, 0.5f);
+            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, edgeNormal.normalized, 0.7f);
 
-            // Add an impulse force to "bounce" off the edge
-            rb.AddForce(edgeNormal * wallRepelForce, ForceMode2D.Impulse);
+            // Add a smaller impulse force to "bounce" off the edge
+            rb.AddForce(edgeNormal * wallRepelForce * 0.5f, ForceMode2D.Impulse);
 
             // Reduce the penalty for hitting edges
-            score -= 20f;
+            score -= 10f;
         }
         else if (col.gameObject.tag == "plr")
         {
