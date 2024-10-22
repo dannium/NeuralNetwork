@@ -41,6 +41,11 @@ public class neuralNetwork : MonoBehaviour
     private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
     private float cellSize = 1f; // Size of each cell in the grid
 
+    // New variables to prevent jittering
+    private float minMovementThreshold = 0.01f;
+    private float jitterPreventionTimer = 0f;
+    private float jitterPreventionDuration = 0.5f;
+
     private void initNeurons()
     {
         neurons = new float[layerAmount][];
@@ -186,13 +191,14 @@ public class neuralNetwork : MonoBehaviour
         if (!foundPlayer)
         {
             // Check if the bot is stuck
-            if (Vector2.Distance(rb.position, lastPosition) < 0.01f)
+            if (Vector2.Distance(rb.position, lastPosition) < minMovementThreshold)
             {
                 stuckTime += Time.deltaTime;
                 if (stuckTime > stuckThreshold)
                 {
                     SetNewExplorationDirection();
                     stuckTime = 0f;
+                    jitterPreventionTimer = jitterPreventionDuration; // Prevent jittering for a short duration
                 }
             }
             else
@@ -206,6 +212,12 @@ public class neuralNetwork : MonoBehaviour
             {
                 SetNewExplorationDirection();
                 explorationTimer = 0f;
+            }
+
+            // Decrease jitter prevention timer
+            if (jitterPreventionTimer > 0)
+            {
+                jitterPreventionTimer -= Time.deltaTime;
             }
 
             // Get output and normalize it to maintain constant speed
@@ -225,8 +237,11 @@ public class neuralNetwork : MonoBehaviour
                 // Normalize the movement vector again to maintain constant speed
                 movement.Normalize();
 
-                // Move the bot
-                rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
+                // Move the bot only if not in jitter prevention mode
+                if (jitterPreventionTimer <= 0)
+                {
+                    rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
+                }
 
                 // Update explored cells
                 UpdateExploredCells();
