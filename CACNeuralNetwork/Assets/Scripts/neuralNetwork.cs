@@ -63,6 +63,10 @@ public class neuralNetwork : MonoBehaviour
     private float explorationRadius = 5f;
     private Vector2 explorationCenter;
 
+    // New variables for bot separation
+    private float separationDistance = 30f; // Minimum distance to maintain between bots
+    private float separationForce = 10f; // Force to apply for separation
+
     private void initNeurons()
     {
         neurons = new float[layerAmount][];
@@ -271,6 +275,10 @@ public class neuralNetwork : MonoBehaviour
                     movement += toCenter.normalized * 0.5f;
                 }
 
+                // Apply separation force
+                Vector2 separationForce = CalculateSeparationForce();
+                movement += separationForce;
+
                 // Normalize the movement vector again to maintain constant speed
                 movement.Normalize();
 
@@ -331,6 +339,34 @@ public class neuralNetwork : MonoBehaviour
         }
 
         return avoidanceForce;
+    }
+
+    private Vector2 CalculateSeparationForce()
+    {
+        Vector2 separationForce = Vector2.zero;
+        int neighborCount = 0;
+
+        foreach (var bot in population)
+        {
+            if (bot != this)
+            {
+                float distance = Vector2.Distance(transform.position, bot.transform.position);
+                if (distance < separationDistance)
+                {
+                    Vector2 awayFromNeighbor = (Vector2)(transform.position - bot.transform.position).normalized;
+                    separationForce += awayFromNeighbor * (separationDistance - distance) / separationDistance;
+                    neighborCount++;
+                }
+            }
+        }
+
+        if (neighborCount > 0)
+        {
+            separationForce /= neighborCount;
+            separationForce *= separationForce;
+        }
+
+        return separationForce;
     }
 
     private void UpdateExploredCells()
