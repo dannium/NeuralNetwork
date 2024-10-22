@@ -72,6 +72,7 @@ public class neuralNetwork : MonoBehaviour
     private float wallRepelForce = 2f;
     private float wallRepelDistance = 2f;
 
+    // Initialize neurons for each layer
     private void initNeurons()
     {
         neurons = new float[layerAmount][];
@@ -81,6 +82,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Initialize weights for connections between neurons
     private void initWeights()
     {
         if (random == null)
@@ -104,6 +106,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Get input values for the neural network
     private float[] inputs()
     {
         float[] array = new float[neuronAmount[0]]; // Match input size to first layer neuron count
@@ -117,6 +120,7 @@ public class neuralNetwork : MonoBehaviour
         return array;
     }
 
+    // Process inputs through the neural network and return outputs
     private float[] outputs(float[] inputs)
     {
         if (inputs.Length != neuronAmount[0])
@@ -146,6 +150,7 @@ public class neuralNetwork : MonoBehaviour
         return neurons[layerAmount - 1];
     }
 
+    // Create a child neural network with potential mutations
     public GameObject createChild(int id)
     {
         score = 0;
@@ -320,6 +325,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Set a new random exploration direction
     private void SetNewExplorationDirection()
     {
         currentExplorationDirection = UnityEngine.Random.insideUnitCircle.normalized;
@@ -331,6 +337,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Calculate force to avoid walls
     private Vector2 CalculateWallAvoidance()
     {
         Vector2 avoidanceForce = Vector2.zero;
@@ -353,6 +360,7 @@ public class neuralNetwork : MonoBehaviour
         return avoidanceForce;
     }
 
+    // Calculate force to maintain separation between bots
     private Vector2 CalculateSeparationForce()
     {
         Vector2 separationForce = Vector2.zero;
@@ -381,6 +389,7 @@ public class neuralNetwork : MonoBehaviour
         return separationForce;
     }
 
+    // Calculate force to repel from walls
     private Vector2 CalculateWallRepelForce()
     {
         Vector2 repelForce = Vector2.zero;
@@ -399,6 +408,7 @@ public class neuralNetwork : MonoBehaviour
         return repelForce;
     }
 
+    // Update the set of explored cells
     private void UpdateExploredCells()
     {
         Vector2Int currentCell = new Vector2Int(
@@ -408,6 +418,7 @@ public class neuralNetwork : MonoBehaviour
         exploredCells.Add(currentCell);
     }
 
+    // Handle collision with walls
     private void OnCollisionStay2D(Collision2D col)
     {
         if (col.gameObject.tag == "wall")
@@ -429,6 +440,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Handle collision with edges and player
     private void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "edge")
@@ -455,6 +467,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Evolve the population to the next generation
     private static void EvolvePopulation()
     {
         generationCount++;
@@ -498,6 +511,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Select a parent for reproduction using tournament selection
     private static neuralNetwork SelectParent()
     {
         if (population.Count == 0)
@@ -520,6 +534,7 @@ public class neuralNetwork : MonoBehaviour
         return best;
     }
 
+    // Perform crossover between two parent neural networks
     private static neuralNetwork Crossover(neuralNetwork parent1, neuralNetwork parent2)
     {
         if (parent1 == null || parent2 == null)
@@ -547,6 +562,7 @@ public class neuralNetwork : MonoBehaviour
         return child;
     }
 
+    // Mutate the weights of a neural network
     private static void Mutate(neuralNetwork bot)
     {
         if (bot == null)
@@ -570,6 +586,7 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
+    // Reset the bot for a new generation
     private void ResetForNewGeneration()
     {
         score = 0;
@@ -582,7 +599,7 @@ public class neuralNetwork : MonoBehaviour
         explorationCenter = transform.position;
     }
 
-    // Method to set initial population flag
+    // Set this bot as part of the initial population
     public void SetAsInitialPopulation()
     {
         isInitialPopulation = true;
