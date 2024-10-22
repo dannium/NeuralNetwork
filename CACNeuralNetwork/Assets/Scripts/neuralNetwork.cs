@@ -44,10 +44,10 @@ public class neuralNetwork : MonoBehaviour
     private float minimumMovementSpeed = 0.5f;
 
     // Simplified wall interaction
-    private float wallRepelForce = 2f;
-    private float wallRepelDistance = 1.5f;
-    private float wallDetectionDistance = 2f;
-    private float wallAvoidanceForce = 3f;
+    private float wallRepelForce = 1f; // Reduced from 2f
+    private float wallRepelDistance = 1f; // Reduced from 1.5f
+    private float wallDetectionDistance = 1.5f; // Reduced from 2f
+    private float wallAvoidanceForce = 2f; // Reduced from 3f
 
     // Exploration variables
     private Vector2 explorationCenter;
@@ -282,9 +282,9 @@ public class neuralNetwork : MonoBehaviour
                 // Blend the neural network output with the exploration direction
                 movement = Vector2.Lerp(movement, currentExplorationDirection, 0.5f);
 
-                // Apply wall avoidance
+                // Apply wall avoidance (with reduced effect)
                 Vector2 avoidanceForce = CalculateWallAvoidance();
-                movement += avoidanceForce;
+                movement += avoidanceForce * 0.5f; // Reduced influence of wall avoidance
 
                 // Apply a force towards the exploration center if the bot is too far
                 Vector2 toCenter = explorationCenter - (Vector2)transform.position;
@@ -297,9 +297,9 @@ public class neuralNetwork : MonoBehaviour
                 Vector2 separationForce = CalculateSeparationForce();
                 movement += separationForce;
 
-                // Apply wall repel force
+                // Apply wall repel force (with reduced effect)
                 Vector2 wallRepelForce = CalculateWallRepelForce();
-                movement += wallRepelForce;
+                movement += wallRepelForce * 0.5f; // Reduced influence of wall repel
 
                 // Normalize the movement vector again to maintain constant direction
                 movement.Normalize();
@@ -439,19 +439,19 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "wall")
         {
             Vector2 wallNormal = col.contacts[0].normal;
-            float offset = 0.05f; // Further reduced offset for more natural movement
+            float offset = 0.01f; // Reduced offset to allow touching walls
 
             // Move the bot slightly away from the wall
             rb.MovePosition((Vector2)transform.position + wallNormal * offset);
 
-            // Set a new exploration direction away from the wall
-            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.7f);
+            // Set a new exploration direction away from the wall, but with less influence
+            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.3f);
 
             // Add a smaller impulse force to "bounce" off the wall
-            rb.AddForce(wallNormal * wallRepelForce * 0.5f, ForceMode2D.Impulse);
+            rb.AddForce(wallNormal * wallRepelForce * 0.2f, ForceMode2D.Impulse);
 
             // Reduce the score penalty for touching walls
-            score -= 2f * Time.deltaTime;
+            score -= 0.5f * Time.deltaTime; // Reduced penalty
         }
     }
 
