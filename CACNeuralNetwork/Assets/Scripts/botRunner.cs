@@ -179,13 +179,18 @@ public class botRunner : MonoBehaviour
             settings.SetActive(false);
             mapCam.Priority = 100;
             timer -= Time.deltaTime;
-            if (timer >= 10)
+            timerTxt.text = timer.ToString("F2");
+
+            /*if ((Mathf.Round(timer * 100) / 100) % 0.1 == 0)
             {
-                timerTxt.text = "0:" + Mathf.Round(timer * 100) / 100;
+                timerTxt.text = timer.ToString("F2");
+            } else if ((Mathf.Round(timer * 100) / 100) % 1 == 0)
+            {
+                timerTxt.text = (Mathf.Round(timer * 100) / 100).ToString() + ".00";
             } else
             {
-                timerTxt.text = "0:0" + Mathf.Round(timer * 100) / 100; //adds extra zero
-            }
+                timerTxt.text = (Mathf.Round(timer * 100) / 100).ToString();
+            }*/
             if (timer <= 0)
         {
             timer = 15;
