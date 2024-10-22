@@ -32,22 +32,36 @@ public class neuralNetwork : MonoBehaviour
     // New variables for improved exploration
     private Vector2 lastPosition;
     private float stuckTime = 0f;
-    private float stuckThreshold = 0.5f; // Reduced time before considering the bot stuck
+    private float stuckThreshold = 0.3f; // Reduced time before considering the bot stuck
     private float explorationTimer = 0f;
-    private float explorationInterval = 3f; // Reduced time between random direction changes
+    private float explorationInterval = 2f; // Reduced time between random direction changes
     private Vector2 currentExplorationDirection;
-    private float wallAvoidanceForce = 4f; // Increased force to apply when avoiding walls
-    private float wallDetectionDistance = 1f; // Increased distance to check for walls
+    private float wallAvoidanceForce = 6f; // Increased force to apply when avoiding walls
+    private float wallDetectionDistance = 1.5f; // Increased distance to check for walls
     private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
     private float cellSize = 1f; // Size of each cell in the grid
 
     // New variables to prevent jittering and smooth movement
-    private float minMovementThreshold = 0.01f;
+    private float minMovementThreshold = 0.05f;
     private float jitterPreventionTimer = 0f;
-    private float jitterPreventionDuration = 0.5f;
+    private float jitterPreventionDuration = 0.3f;
     private Vector2 targetVelocity;
-    private float smoothTime = 0.1f; // Time to smooth movement
+    private float smoothTime = 0.05f; // Reduced time to smooth movement
     private Vector2 currentVelocity;
+
+    // New variables for improved evolution
+    public static List<neuralNetwork> population = new List<neuralNetwork>();
+    public static int generationCount = 0;
+    public static int populationSize = 50;
+    public static float elitePercentage = 0.1f;
+    public static float crossoverRate = 0.7f;
+
+    // New variable to track if this bot is part of the initial population
+    private bool isInitialPopulation = false;
+
+    // New variable for a more dynamic exploration strategy
+    private float explorationRadius = 5f;
+    private Vector2 explorationCenter;
 
     private void initNeurons()
     {
@@ -60,7 +74,11 @@ public class neuralNetwork : MonoBehaviour
 
     private void initWeights()
     {
-         UnityEngine.Random.InitState(id);
+        if (random == null)
+        {
+            random = new System.Random(id); // Initialize random if it's null
+        }
+        UnityEngine.Random.InitState(id);
         weights = new float[layerAmount - 1][][];
         for (int i = 0; i < layerAmount - 1; i++) //create until layer before output layer
         {  
@@ -127,7 +145,7 @@ public class neuralNetwork : MonoBehaviour
         Child.name = id.ToString();
         nn.score = 0;
         nn.id = this.id;
-        nn.random = new System.Random();
+        nn.random = new System.Random(id); // Initialize random with the id as seed
         nn.layers = new int[layerAmount];
         nn.layerAmount = layerAmount;
         nn.neuronAmount = neuronAmount;
@@ -153,9 +171,9 @@ public class neuralNetwork : MonoBehaviour
 
                 for (int k = 0; k < neuronAmount[i + 1]; k++)
                 {
-                    if (mutateChance < UnityEngine.Random.Range(1, 100))
+                    if (UnityEngine.Random.value < mutateChance)
                     {
-                        weights[i][j][k] = (float)random.NextDouble() - 0.5f;
+                        nn.weights[i][j][k] = weights[i][j][k] + UnityEngine.Random.Range(-0.2f, 0.2f);
                     }
                     else
                     {
@@ -173,7 +191,7 @@ public class neuralNetwork : MonoBehaviour
     {
         destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
         destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
-        random = new System.Random(); // Initialize the random variable        
+        random = new System.Random(id); // Initialize the random variable with id as seed
         layers = new int[layerAmount];
         for (int i = 0; i < layerAmount; i++)
         {
@@ -186,6 +204,15 @@ public class neuralNetwork : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         lastPosition = rb.position;
         SetNewExplorationDirection();
+
+        // Set initial exploration center
+        explorationCenter = transform.position;
+
+        // Only add to population if this is part of the initial population
+        if (isInitialPopulation)
+        {
+            population.Add(this);
+        }
     }
 
     // Update is called once per frame
@@ -231,11 +258,18 @@ public class neuralNetwork : MonoBehaviour
                 movement.Normalize(); // Ensure movement has a constant magnitude
 
                 // Blend the neural network output with the exploration direction
-                movement = Vector2.Lerp(movement, currentExplorationDirection, 0.5f);
+                movement = Vector2.Lerp(movement, currentExplorationDirection, 0.7f);
 
                 // Apply wall avoidance
                 Vector2 avoidanceForce = CalculateWallAvoidance();
                 movement += avoidanceForce;
+
+                // Apply a force towards the exploration center if the bot is too far
+                Vector2 toCenter = explorationCenter - (Vector2)transform.position;
+                if (toCenter.magnitude > explorationRadius)
+                {
+                    movement += toCenter.normalized * 0.5f;
+                }
 
                 // Normalize the movement vector again to maintain constant speed
                 movement.Normalize();
@@ -252,31 +286,29 @@ public class neuralNetwork : MonoBehaviour
             }
 
             lastPosition = rb.position;
-        }
-
-        // Debug print for specific bot (e.g., bot with name "11")
-        if (name == "11")
-        {
-            float[] inputArray = inputs();
-            float[] outputArray = outputs(inputArray);
-            if (inputArray.Length >= 2 && outputArray.Length >= 2)
-            {
-                print($"ix:{inputArray[0]}, iy:{inputArray[1]}, ox:{outputArray[0]}, oy:{outputArray[1]}");
-            }
-            else
-            {
-                Debug.LogError("Input or output array does not have enough elements for debug print");
-            }
+            UpdateExploredCells();
         }
 
         // Increase score based on exploration and reduce it based on the distance from the destination
         score += exploredCells.Count * 0.1f * Time.deltaTime;
         score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.5f;
+
+        // Check if all bots have finished or a time limit has been reached
+        if (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f) // 60 seconds time limit
+        {
+            EvolvePopulation();
+        }
     }
 
     private void SetNewExplorationDirection()
     {
         currentExplorationDirection = UnityEngine.Random.insideUnitCircle.normalized;
+        
+        // Occasionally set a new exploration center
+        if (UnityEngine.Random.value < 0.2f)
+        {
+            explorationCenter = (Vector2)transform.position + UnityEngine.Random.insideUnitCircle * explorationRadius;
+        }
     }
 
     private Vector2 CalculateWallAvoidance()
@@ -315,7 +347,7 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "wall")
         {
             Vector2 wallNormal = col.contacts[0].normal;
-            float offset = 0.2f; // Increased offset to move away from walls more quickly
+            float offset = 0.3f; // Increased offset to move away from walls more quickly
 
             // Move the bot slightly away from the wall
             rb.MovePosition((Vector2)transform.position + wallNormal * offset);
@@ -332,7 +364,7 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "edge")
         {
             Vector2 edgeNormal = col.contacts[0].normal;
-            float offset = 0.2f; // Increased offset to move away from edges more quickly
+            float offset = 0.3f; // Increased offset to move away from edges more quickly
 
             // Move the bot slightly away from the edge
             rb.MovePosition((Vector2)transform.position + edgeNormal * offset);
@@ -347,5 +379,118 @@ public class neuralNetwork : MonoBehaviour
             score += 10000;
             foundPlayer = true;
         }
+    }
+
+    private static void EvolvePopulation()
+    {
+        generationCount++;
+        Debug.Log($"Generation {generationCount} completed. Evolving population...");
+
+        // Sort the population by score in descending order
+        population.Sort((a, b) => b.score.CompareTo(a.score));
+
+        // Keep the top performers (elites)
+        int eliteCount = Mathf.RoundToInt(populationSize * elitePercentage);
+        List<neuralNetwork> newPopulation = new List<neuralNetwork>(population.GetRange(0, eliteCount));
+
+        // Create new individuals through crossover and mutation
+        while (newPopulation.Count < populationSize)
+        {
+            neuralNetwork parent1 = SelectParent();
+            neuralNetwork parent2 = SelectParent();
+
+            neuralNetwork child = Crossover(parent1, parent2);
+            Mutate(child);
+
+            newPopulation.Add(child);
+        }
+
+        // Replace the old population with the new one
+        foreach (var bot in population)
+        {
+            if (!newPopulation.Contains(bot))
+            {
+                Destroy(bot.gameObject);
+            }
+        }
+
+        population = newPopulation;
+
+        // Reset all bots for the next generation
+        foreach (var bot in population)
+        {
+            bot.ResetForNewGeneration();
+        }
+    }
+
+    private static neuralNetwork SelectParent()
+    {
+        // Tournament selection
+        int tournamentSize = 5;
+        neuralNetwork best = null;
+        for (int i = 0; i < tournamentSize; i++)
+        {
+            neuralNetwork contestant = population[UnityEngine.Random.Range(0, population.Count)];
+            if (best == null || contestant.score > best.score)
+            {
+                best = contestant;
+            }
+        }
+        return best;
+    }
+
+    private static neuralNetwork Crossover(neuralNetwork parent1, neuralNetwork parent2)
+    {
+        neuralNetwork child = Instantiate(parent1.gameObject).GetComponent<neuralNetwork>();
+        child.isInitialPopulation = false; // Set this to false for new children
+
+        // Perform crossover for each weight
+        for (int i = 0; i < child.weights.Length; i++)
+        {
+            for (int j = 0; j < child.weights[i].Length; j++)
+            {
+                for (int k = 0; k < child.weights[i][j].Length; k++)
+                {
+                    child.weights[i][j][k] = UnityEngine.Random.value < crossoverRate ? 
+                        parent1.weights[i][j][k] : parent2.weights[i][j][k];
+                }
+            }
+        }
+
+        return child;
+    }
+
+    private static void Mutate(neuralNetwork bot)
+    {
+        for (int i = 0; i < bot.weights.Length; i++)
+        {
+            for (int j = 0; j < bot.weights[i].Length; j++)
+            {
+                for (int k = 0; k < bot.weights[i][j].Length; k++)
+                {
+                    if (UnityEngine.Random.value < bot.mutateChance)
+                    {
+                        bot.weights[i][j][k] += UnityEngine.Random.Range(-0.2f, 0.2f);
+                    }
+                }
+            }
+        }
+    }
+
+    private void ResetForNewGeneration()
+    {
+        score = 0;
+        foundPlayer = false;
+        transform.position = new Vector3(UnityEngine.Random.Range(-5f, 5f), UnityEngine.Random.Range(-5f, 5f), 0); // Random starting position
+        rb.velocity = Vector2.zero;
+        SetNewExplorationDirection();
+        exploredCells.Clear();
+        explorationCenter = transform.position;
+    }
+
+    // Method to set initial population flag
+    public void SetAsInitialPopulation()
+    {
+        isInitialPopulation = true;
     }
 }
