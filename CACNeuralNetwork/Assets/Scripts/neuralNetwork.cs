@@ -68,6 +68,10 @@ public class neuralNetwork : MonoBehaviour
     // New variable to ensure minimum movement
     private float minimumMovementSpeed = 0.5f;
 
+    // New variable for wall avoidance
+    private float wallRepelForce = 2f;
+    private float wallRepelDistance = 2f;
+
     private void initNeurons()
     {
         neurons = new float[layerAmount][];
@@ -273,6 +277,10 @@ public class neuralNetwork : MonoBehaviour
                 Vector2 separationForce = CalculateSeparationForce();
                 movement += separationForce;
 
+                // Apply wall repel force
+                Vector2 wallRepelForce = CalculateWallRepelForce();
+                movement += wallRepelForce;
+
                 // Normalize the movement vector again to maintain constant direction
                 movement.Normalize();
 
@@ -373,6 +381,24 @@ public class neuralNetwork : MonoBehaviour
         return separationForce;
     }
 
+    private Vector2 CalculateWallRepelForce()
+    {
+        Vector2 repelForce = Vector2.zero;
+        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, wallRepelDistance);
+
+        foreach (Collider2D collider in nearbyColliders)
+        {
+            if (collider.CompareTag("wall"))
+            {
+                Vector2 awayFromWall = (Vector2)transform.position - (Vector2)collider.ClosestPoint(transform.position);
+                float distance = awayFromWall.magnitude;
+                repelForce += awayFromWall.normalized * (wallRepelDistance - distance) / wallRepelDistance * wallRepelForce;
+            }
+        }
+
+        return repelForce;
+    }
+
     private void UpdateExploredCells()
     {
         Vector2Int currentCell = new Vector2Int(
@@ -395,6 +421,9 @@ public class neuralNetwork : MonoBehaviour
             // Set a new exploration direction away from the wall
             currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.5f);
 
+            // Add an impulse force to "bounce" off the wall
+            rb.AddForce(wallNormal * wallRepelForce, ForceMode2D.Impulse);
+
             // Reduce the score penalty for staying on walls
             score -= 5f * Time.deltaTime;
         }
@@ -412,6 +441,9 @@ public class neuralNetwork : MonoBehaviour
 
             // Set a new exploration direction away from the edge
             currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, edgeNormal.normalized, 0.5f);
+
+            // Add an impulse force to "bounce" off the edge
+            rb.AddForce(edgeNormal * wallRepelForce, ForceMode2D.Impulse);
 
             // Reduce the penalty for hitting edges
             score -= 20f;
