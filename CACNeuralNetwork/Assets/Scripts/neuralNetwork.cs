@@ -27,27 +27,25 @@ public class neuralNetwork : MonoBehaviour
     public int id;
     Rigidbody2D rb;
     bool foundPlayer = false;
-    float moveSpeed = 5f; // Constant move speed for the bot
+    float moveSpeed = 3f; // Reduced move speed for more natural movement
 
     // New variables for improved exploration
     private Vector2 lastPosition;
     private float stuckTime = 0f;
-    private float stuckThreshold = 0.3f; // Reduced time before considering the bot stuck
+    private float stuckThreshold = 0.5f; // Increased time before considering the bot stuck
     private float explorationTimer = 0f;
-    private float explorationInterval = 2f; // Reduced time between random direction changes
+    private float explorationInterval = 3f; // Increased time between direction changes
     private Vector2 currentExplorationDirection;
-    private float wallAvoidanceForce = 6f; // Increased force to apply when avoiding walls
-    private float wallDetectionDistance = 1.5f; // Increased distance to check for walls
+    private float wallAvoidanceForce = 4f; // Reduced force to apply when avoiding walls
+    private float wallDetectionDistance = 1.5f;
     private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
     private float cellSize = 1f; // Size of each cell in the grid
 
-    // New variables to prevent jittering and smooth movement
-    private float minMovementThreshold = 0.05f;
-    private float jitterPreventionTimer = 0f;
-    private float jitterPreventionDuration = 0.3f;
-    private Vector2 targetVelocity;
-    private float smoothTime = 0.05f; // Reduced time to smooth movement
+    // New variables for smoother movement
+    private float accelerationRate = 5f;
+    private float decelerationRate = 3f;
     private Vector2 currentVelocity;
+    private Vector2 targetVelocity;
 
     // New variables for improved evolution
     public static List<neuralNetwork> population = new List<neuralNetwork>();
@@ -64,8 +62,15 @@ public class neuralNetwork : MonoBehaviour
     private Vector2 explorationCenter;
 
     // New variables for bot separation
-    private float separationDistance = 30f; // Minimum distance to maintain between bots
-    private float separationForce = 10f; // Force to apply for separation
+    private float separationDistance = 2f; // Reduced minimum distance to maintain between bots
+    private float separationForce = 5f; // Reduced force to apply for separation
+
+    // New variable to ensure minimum movement
+    private float minimumMovementSpeed = 0.5f;
+
+    // New variable for wall avoidance
+    private float wallRepelForce = 2f;
+    private float wallRepelDistance = 2f;
 
     private void initNeurons()
     {
@@ -225,14 +230,13 @@ public class neuralNetwork : MonoBehaviour
         if (!foundPlayer)
         {
             // Check if the bot is stuck
-            if (Vector2.Distance(rb.position, lastPosition) < minMovementThreshold)
+            if (Vector2.Distance(rb.position, lastPosition) < 0.01f)
             {
                 stuckTime += Time.deltaTime;
                 if (stuckTime > stuckThreshold)
                 {
                     SetNewExplorationDirection();
                     stuckTime = 0f;
-                    jitterPreventionTimer = jitterPreventionDuration; // Prevent jittering for a short duration
                 }
             }
             else
@@ -248,12 +252,6 @@ public class neuralNetwork : MonoBehaviour
                 explorationTimer = 0f;
             }
 
-            // Decrease jitter prevention timer
-            if (jitterPreventionTimer > 0)
-            {
-                jitterPreventionTimer -= Time.deltaTime;
-            }
-
             // Get output and normalize it to maintain constant speed
             float[] outputArray = outputs(inputs());
             if (outputArray.Length >= 2)
@@ -262,7 +260,7 @@ public class neuralNetwork : MonoBehaviour
                 movement.Normalize(); // Ensure movement has a constant magnitude
 
                 // Blend the neural network output with the exploration direction
-                movement = Vector2.Lerp(movement, currentExplorationDirection, 0.7f);
+                movement = Vector2.Lerp(movement, currentExplorationDirection, 0.5f);
 
                 // Apply wall avoidance
                 Vector2 avoidanceForce = CalculateWallAvoidance();
@@ -272,21 +270,35 @@ public class neuralNetwork : MonoBehaviour
                 Vector2 toCenter = explorationCenter - (Vector2)transform.position;
                 if (toCenter.magnitude > explorationRadius)
                 {
-                    movement += toCenter.normalized * 0.5f;
+                    movement += toCenter.normalized * 0.3f;
                 }
 
                 // Apply separation force
                 Vector2 separationForce = CalculateSeparationForce();
                 movement += separationForce;
 
-                // Normalize the movement vector again to maintain constant speed
+                // Apply wall repel force
+                Vector2 wallRepelForce = CalculateWallRepelForce();
+                movement += wallRepelForce;
+
+                // Normalize the movement vector again to maintain constant direction
                 movement.Normalize();
 
                 // Set the target velocity
                 targetVelocity = movement * moveSpeed;
 
-                // Smoothly interpolate current velocity towards target velocity
-                rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
+                // Smoothly accelerate or decelerate towards the target velocity
+                currentVelocity = Vector2.MoveTowards(currentVelocity, targetVelocity, 
+                    (currentVelocity.magnitude < targetVelocity.magnitude ? accelerationRate : decelerationRate) * Time.deltaTime);
+
+                // Ensure minimum movement speed
+                if (currentVelocity.magnitude < minimumMovementSpeed)
+                {
+                    currentVelocity = currentVelocity.normalized * minimumMovementSpeed;
+                }
+
+                // Apply the velocity to the rigidbody
+                rb.velocity = currentVelocity;
             }
             else
             {
@@ -369,6 +381,24 @@ public class neuralNetwork : MonoBehaviour
         return separationForce;
     }
 
+    private Vector2 CalculateWallRepelForce()
+    {
+        Vector2 repelForce = Vector2.zero;
+        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, wallRepelDistance);
+
+        foreach (Collider2D collider in nearbyColliders)
+        {
+            if (collider.CompareTag("wall"))
+            {
+                Vector2 awayFromWall = (Vector2)transform.position - (Vector2)collider.ClosestPoint(transform.position);
+                float distance = awayFromWall.magnitude;
+                repelForce += awayFromWall.normalized * (wallRepelDistance - distance) / wallRepelDistance * wallRepelForce;
+            }
+        }
+
+        return repelForce;
+    }
+
     private void UpdateExploredCells()
     {
         Vector2Int currentCell = new Vector2Int(
@@ -383,15 +413,19 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "wall")
         {
             Vector2 wallNormal = col.contacts[0].normal;
-            float offset = 0.3f; // Increased offset to move away from walls more quickly
+            float offset = 0.1f; // Reduced offset for more natural movement
 
             // Move the bot slightly away from the wall
             rb.MovePosition((Vector2)transform.position + wallNormal * offset);
 
             // Set a new exploration direction away from the wall
-            currentExplorationDirection = wallNormal.normalized;
+            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.5f);
 
-            score -= 50f * Time.deltaTime; // Increased penalty for staying on walls
+            // Add an impulse force to "bounce" off the wall
+            rb.AddForce(wallNormal * wallRepelForce, ForceMode2D.Impulse);
+
+            // Reduce the score penalty for staying on walls
+            score -= 5f * Time.deltaTime;
         }
     }
 
@@ -400,15 +434,19 @@ public class neuralNetwork : MonoBehaviour
         if (col.gameObject.tag == "edge")
         {
             Vector2 edgeNormal = col.contacts[0].normal;
-            float offset = 0.3f; // Increased offset to move away from edges more quickly
+            float offset = 0.1f; // Reduced offset for more natural movement
 
             // Move the bot slightly away from the edge
             rb.MovePosition((Vector2)transform.position + edgeNormal * offset);
 
             // Set a new exploration direction away from the edge
-            currentExplorationDirection = edgeNormal.normalized;
+            currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, edgeNormal.normalized, 0.5f);
 
-            score -= 100f; // Added penalty for hitting edges
+            // Add an impulse force to "bounce" off the edge
+            rb.AddForce(edgeNormal * wallRepelForce, ForceMode2D.Impulse);
+
+            // Reduce the penalty for hitting edges
+            score -= 20f;
         }
         else if (col.gameObject.tag == "plr")
         {
@@ -525,7 +563,7 @@ public class neuralNetwork : MonoBehaviour
                 {
                     if (UnityEngine.Random.value < bot.mutateChance)
                     {
-                        bot.weights[i][j][k] += UnityEngine.Random.Range(-0.2f, 0.2f);
+                        bot.weights[i][j][k] += UnityEngine.Random.Range(-0.1f, 0.1f);
                     }
                 }
             }
@@ -538,6 +576,7 @@ public class neuralNetwork : MonoBehaviour
         foundPlayer = false;
         transform.position = new Vector3(UnityEngine.Random.Range(-5f, 5f), UnityEngine.Random.Range(-5f, 5f), 0); // Random starting position
         rb.velocity = Vector2.zero;
+        currentVelocity = Vector2.zero;
         SetNewExplorationDirection();
         exploredCells.Clear();
         explorationCenter = transform.position;
