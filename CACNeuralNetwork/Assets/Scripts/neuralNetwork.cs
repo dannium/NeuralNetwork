@@ -29,6 +29,18 @@ public class neuralNetwork : MonoBehaviour
     bool foundPlayer = false;
     float moveSpeed = 5f; // Constant move speed for the bot
 
+    // New variables for improved exploration
+    private Vector2 lastPosition;
+    private float stuckTime = 0f;
+    private float stuckThreshold = 0.5f; // Reduced time before considering the bot stuck
+    private float explorationTimer = 0f;
+    private float explorationInterval = 3f; // Reduced time between random direction changes
+    private Vector2 currentExplorationDirection;
+    private float wallAvoidanceForce = 4f; // Increased force to apply when avoiding walls
+    private float wallDetectionDistance = 1f; // Increased distance to check for walls
+    private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
+    private float cellSize = 1f; // Size of each cell in the grid
+
     private void initNeurons()
     {
         neurons = new float[layerAmount][];
@@ -59,25 +71,36 @@ public class neuralNetwork : MonoBehaviour
 
     private float[] inputs()
     {
-        float[] array = new float[2]; //makes an array with the length being the amount of inputs (2 rn)
+        float[] array = new float[neuronAmount[0]]; // Match input size to first layer neuron count
         array[0] = destinationX - transform.position.x;
         array[1] = destinationY - transform.position.y;
+        if (neuronAmount[0] > 2)
+        {
+            array[2] = currentExplorationDirection.x;
+            array[3] = currentExplorationDirection.y;
+        }
         return array;
     }
 
     private float[] outputs(float[] inputs)
     {
-        for (int i = 0; i < inputs.Length; i++)
+        if (inputs.Length != neuronAmount[0])
+        {
+            Debug.LogError($"Input length ({inputs.Length}) does not match first layer neuron count ({neuronAmount[0]})");
+            return new float[neuronAmount[layerAmount - 1]]; // Return empty output array
+        }
+
+        for (int i = 0; i < neuronAmount[0]; i++)
         {
             neurons[0][i] = inputs[i]; //sets inputs to first layer neurons
         }
 
-        for (int i = 1; i < layers.Length; i++) // Loop through each layer starting from the first hidden layer
+        for (int i = 1; i < layerAmount; i++) // Loop through each layer starting from the first hidden layer
         {
             for (int j = 0; j < neurons[i].Length; j++) // Loop through each neuron in the current layer
             {
                 float value = 0.25f;
-                for (int k = 1; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
+                for (int k = 0; k < neurons[i - 1].Length; k++) // Loop through each neuron in the previous layer
                 {
                     value += neurons[i - 1][k] * weights[i - 1][k][j];
                 }
@@ -85,7 +108,7 @@ public class neuralNetwork : MonoBehaviour
             }
         }
 
-        return neurons[neurons.Length - 1];
+        return neurons[layerAmount - 1];
     }
 
     public GameObject createChild(int id)
@@ -153,6 +176,8 @@ public class neuralNetwork : MonoBehaviour
         initNeurons();
         initWeights();
         rb = GetComponent<Rigidbody2D>();
+        lastPosition = rb.position;
+        SetNewExplorationDirection();
     }
 
     // Update is called once per frame
@@ -160,74 +185,147 @@ public class neuralNetwork : MonoBehaviour
     {
         if (!foundPlayer)
         {
-            // Get output and normalize it to maintain constant speed
-            Vector2 movement = new Vector2(outputs(inputs())[0], outputs(inputs())[1]);
-            movement.Normalize(); // Ensure movement has a constant magnitude
+            // Check if the bot is stuck
+            if (Vector2.Distance(rb.position, lastPosition) < 0.01f)
+            {
+                stuckTime += Time.deltaTime;
+                if (stuckTime > stuckThreshold)
+                {
+                    SetNewExplorationDirection();
+                    stuckTime = 0f;
+                }
+            }
+            else
+            {
+                stuckTime = 0f;
+            }
 
-            // Move the bot
-            rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
+            // Update exploration direction periodically
+            explorationTimer += Time.deltaTime;
+            if (explorationTimer > explorationInterval)
+            {
+                SetNewExplorationDirection();
+                explorationTimer = 0f;
+            }
+
+            // Get output and normalize it to maintain constant speed
+            float[] outputArray = outputs(inputs());
+            if (outputArray.Length >= 2)
+            {
+                Vector2 movement = new Vector2(outputArray[0], outputArray[1]);
+                movement.Normalize(); // Ensure movement has a constant magnitude
+
+                // Blend the neural network output with the exploration direction
+                movement = Vector2.Lerp(movement, currentExplorationDirection, 0.5f);
+
+                // Apply wall avoidance
+                Vector2 avoidanceForce = CalculateWallAvoidance();
+                movement += avoidanceForce;
+
+                // Normalize the movement vector again to maintain constant speed
+                movement.Normalize();
+
+                // Move the bot
+                rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
+
+                // Update explored cells
+                UpdateExploredCells();
+            }
+            else
+            {
+                Debug.LogError("Output array does not have enough elements");
+            }
+
+            lastPosition = rb.position;
         }
 
         // Debug print for specific bot (e.g., bot with name "11")
         if (name == "11")
         {
-            print("ix:" + inputs()[0] + ", iy: " + inputs()[1] + ", ox: " + outputs(inputs())[0] + ", oy: " + outputs(inputs())[1]);
+            float[] inputArray = inputs();
+            float[] outputArray = outputs(inputArray);
+            if (inputArray.Length >= 2 && outputArray.Length >= 2)
+            {
+                print($"ix:{inputArray[0]}, iy:{inputArray[1]}, ox:{outputArray[0]}, oy:{outputArray[1]}");
+            }
+            else
+            {
+                Debug.LogError("Input or output array does not have enough elements for debug print");
+            }
         }
 
-        // Reduce score based on the distance from the destination
-        score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime;
+        // Increase score based on exploration and reduce it based on the distance from the destination
+        score += exploredCells.Count * 0.1f * Time.deltaTime;
+        score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.5f;
     }
 
-private void OnCollisionStay2D(Collision2D col)
-{
-    if (col.gameObject.tag == "wall")
+    private void SetNewExplorationDirection()
     {
-        float wallNormalX = col.contacts[0].normal.x;
-        float wallNormalY = col.contacts[0].normal.y;
-        float offset = 0.1f; // Adjust this value to control the amount of offset
-
-        // Move the bot slightly away from the wall
-        rb.MovePosition(transform.position + new Vector3(wallNormalX * offset, wallNormalY * offset, 0));
-
-        // Adjust direction based on wall normal to continue movement
-        float moveDirectionX = outputs(inputs())[0];
-        float moveDirectionY = outputs(inputs())[1];
-
-        // Check if moving directly against the wall
-        if (Mathf.Abs(wallNormalX) > 0.9f)
-        {
-            // Reverse X direction with a small variation
-            moveDirectionX = -moveDirectionX + UnityEngine.Random.Range(-0.1f, 0.1f);
-        }
-        if (Mathf.Abs(wallNormalY) > 0.9f)
-        {
-            // Reverse Y direction with a small variation
-            moveDirectionY = -moveDirectionY + UnityEngine.Random.Range(-0.1f, 0.1f);
-        }
-
-        // Apply the new movement direction
-        rb.MovePosition(new Vector2(transform.position.x + moveDirectionX * Time.deltaTime * 20, 
-                                     transform.position.y + moveDirectionY * Time.deltaTime * 20));
-
-        score -= 25f * Time.deltaTime;
+        currentExplorationDirection = UnityEngine.Random.insideUnitCircle.normalized;
     }
-}
+
+    private Vector2 CalculateWallAvoidance()
+    {
+        Vector2 avoidanceForce = Vector2.zero;
+        RaycastHit2D[] hits = new RaycastHit2D[8];
+        Vector2[] directions = {
+            Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+            new Vector2(1, 1).normalized, new Vector2(1, -1).normalized,
+            new Vector2(-1, 1).normalized, new Vector2(-1, -1).normalized
+        };
+
+        for (int i = 0; i < 8; i++)
+        {
+            hits[i] = Physics2D.Raycast(transform.position, directions[i], wallDetectionDistance);
+            if (hits[i].collider != null && hits[i].collider.CompareTag("wall"))
+            {
+                avoidanceForce -= directions[i] * (wallDetectionDistance - hits[i].distance) / wallDetectionDistance * wallAvoidanceForce;
+            }
+        }
+
+        return avoidanceForce;
+    }
+
+    private void UpdateExploredCells()
+    {
+        Vector2Int currentCell = new Vector2Int(
+            Mathf.FloorToInt(transform.position.x / cellSize),
+            Mathf.FloorToInt(transform.position.y / cellSize)
+        );
+        exploredCells.Add(currentCell);
+    }
+
+    private void OnCollisionStay2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "wall")
+        {
+            Vector2 wallNormal = col.contacts[0].normal;
+            float offset = 0.2f; // Increased offset to move away from walls more quickly
+
+            // Move the bot slightly away from the wall
+            rb.MovePosition((Vector2)transform.position + wallNormal * offset);
+
+            // Set a new exploration direction away from the wall
+            currentExplorationDirection = wallNormal.normalized;
+
+            score -= 50f * Time.deltaTime; // Increased penalty for staying on walls
+        }
+    }
 
     private void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "edge")
         {
-            float edgeNormalX = col.contacts[0].normal.x;
-            float edgeNormalY = col.contacts[0].normal.y;
-            float offset = 0.1f; // Adjust this value to control the amount of offset
-            if (Mathf.Abs(edgeNormalX) > 0.9f) // Check if the collision is with the left or right edge
-            {
-                rb.MovePosition(transform.position + new Vector3(edgeNormalX            * offset, 0, 0));
-            }
-            else if (Mathf.Abs(edgeNormalY) > 0.9f) // Check if the collision is with the top or bottom edge
-            {
-                rb.MovePosition(transform.position + new Vector3(0, edgeNormalY * offset, 0));
-            }
+            Vector2 edgeNormal = col.contacts[0].normal;
+            float offset = 0.2f; // Increased offset to move away from edges more quickly
+
+            // Move the bot slightly away from the edge
+            rb.MovePosition((Vector2)transform.position + edgeNormal * offset);
+
+            // Set a new exploration direction away from the edge
+            currentExplorationDirection = edgeNormal.normalized;
+
+            score -= 100f; // Added penalty for hitting edges
         }
         else if (col.gameObject.tag == "plr")
         {
@@ -236,4 +334,3 @@ private void OnCollisionStay2D(Collision2D col)
         }
     }
 }
-
