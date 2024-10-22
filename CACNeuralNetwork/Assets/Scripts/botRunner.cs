@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using TMPro;
 using UnityEngine.UI;
 using UnityEditor.Experimental.GraphView;
+using Cinemachine;
 
 public class botRunner : MonoBehaviour
 {
@@ -32,6 +33,9 @@ public class botRunner : MonoBehaviour
     public int layerAmount = 2;
     public int hlnAmount = 6; //hidden layer neuron amount
     public float mutateChance = 3;
+
+    [Header("cam stuff")]
+    public CinemachineVirtualCamera mapCam;
 
     float[] scores;
     public int botNum;
@@ -173,6 +177,7 @@ public class botRunner : MonoBehaviour
             genTxt.enabled = true;
             timerTxt.enabled = true;
             settings.SetActive(false);
+            mapCam.Priority = 100;
             timer -= Time.deltaTime;
             if (timer >= 10)
             {
