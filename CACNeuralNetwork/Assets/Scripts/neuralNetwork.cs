@@ -41,10 +41,13 @@ public class neuralNetwork : MonoBehaviour
     private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
     private float cellSize = 1f; // Size of each cell in the grid
 
-    // New variables to prevent jittering
+    // New variables to prevent jittering and smooth movement
     private float minMovementThreshold = 0.01f;
     private float jitterPreventionTimer = 0f;
     private float jitterPreventionDuration = 0.5f;
+    private Vector2 targetVelocity;
+    private float smoothTime = 0.1f; // Time to smooth movement
+    private Vector2 currentVelocity;
 
     private void initNeurons()
     {
@@ -237,14 +240,11 @@ public class neuralNetwork : MonoBehaviour
                 // Normalize the movement vector again to maintain constant speed
                 movement.Normalize();
 
-                // Move the bot only if not in jitter prevention mode
-                if (jitterPreventionTimer <= 0)
-                {
-                    rb.MovePosition(rb.position + movement * moveSpeed * Time.deltaTime);
-                }
+                // Set the target velocity
+                targetVelocity = movement * moveSpeed;
 
-                // Update explored cells
-                UpdateExploredCells();
+                // Smoothly interpolate current velocity towards target velocity
+                rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
             }
             else
             {
