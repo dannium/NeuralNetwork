@@ -11,6 +11,7 @@ public class botRunner : MonoBehaviour
     public int botAmount;//needs to be even
     public GameObject bot;
     public GameObject[] bots;
+    public 
     float[] scores;
     int botNum;
     float timer = 0;
@@ -142,10 +143,10 @@ public class botRunner : MonoBehaviour
 
         if (start)
         {
-        timer += Time.deltaTime;
-        if (timer >= 10)
+        timer -= Time.deltaTime;
+        if (timer <= 0)
         {
-            timer = 0;
+            timer = 15;
             nextGen();
         }
         }
