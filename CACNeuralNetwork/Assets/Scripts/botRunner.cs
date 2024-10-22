@@ -11,7 +11,7 @@ using UnityEditor.Experimental.GraphView;
 
 public class botRunner : MonoBehaviour
 {
-    public int botAmount;//needs to be even
+    public int botAmount = 32;//needs to be even
     public GameObject bot;
     public GameObject[] bots;
 
@@ -37,6 +37,8 @@ public class botRunner : MonoBehaviour
     public int botNum;
     float timer = 0;
 
+    int gen = 1;
+
     [SerializeField] public bool start = false;
     void firstGen()
     {
@@ -48,6 +50,8 @@ public class botRunner : MonoBehaviour
     }
     void nextGen()
     {
+        genTxt.text = "Generation " + gen;
+        gen++;
         for (int i = 0; i < scores.Length; i++)
         {
             if (bots[i] == null)
@@ -147,6 +151,8 @@ public class botRunner : MonoBehaviour
     void Start()
 
     {
+        genTxt.enabled = false;
+        timerTxt.enabled = false;
         resetBtn.onClick.AddListener(resetSettings);
         startBtn.onClick.AddListener(StartRunning);
         layersSlider.onValueChanged.AddListener(delegate { sliderChanged(layersSlider); });
@@ -164,11 +170,21 @@ public class botRunner : MonoBehaviour
 
         if (start)
         {
+            genTxt.enabled = true;
+            timerTxt.enabled = true;
             settings.SetActive(false);
             timer -= Time.deltaTime;
-        if (timer <= 0)
+            if (timer >= 10)
+            {
+                timerTxt.text = "0:" + Mathf.Round(timer * 100) / 100;
+            } else
+            {
+                timerTxt.text = "0:0" + Mathf.Round(timer * 100) / 100; //adds extra zero
+            }
+            if (timer <= 0)
         {
             timer = 15;
+            timerTxt.text = "0:15.00";
             nextGen();
         }
         }
@@ -206,7 +222,7 @@ public class botRunner : MonoBehaviour
             neuronsTxt.text = "Neurons: " + hlnAmount;
         } else if(slider == mutateSlider) {
             mutateChance = mutateSlider.value;
-            mutateTxt.text = "Mutate chance: " + mutateChance + "%";
+            mutateTxt.text = "Mutate chance: " + Mathf.Round(mutateChance*100)/100 + "%";
         } else if(slider == botsSlider)
         {
             botAmount = (int)botsSlider.value;
