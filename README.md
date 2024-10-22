@@ -6,7 +6,7 @@
 <hr>
 
 ### - How it Works -
-At the beginning of each generation, 50 AI bots spawn, each tasked with moving toward a target position within a given room. Each bot is given inputs representing an X and Y distance from the goal location. 
+At the beginning of each generation, AI bots spawn, each tasked with moving toward a target position within a given area. Each bot is given inputs representing an X and Y distance from the goal location. 
 
 These inputs are processed through **hidden layer neurons**, which perform a series of calculations to determine how the AI bot should move at the end of the network.
 
