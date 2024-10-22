@@ -44,18 +44,18 @@ public class neuralNetwork : MonoBehaviour
     private float minimumMovementSpeed = 0.5f;
 
     // Simplified wall interaction
-    private float wallRepelForce = 1f; // Reduced from 2f
-    private float wallRepelDistance = 1f; // Reduced from 1.5f
-    private float wallDetectionDistance = 1.5f; // Reduced from 2f
-    private float wallAvoidanceForce = 2f; // Reduced from 3f
+    private float wallRepelForce = 1f;
+    private float wallRepelDistance = 1f;
+    private float wallDetectionDistance = 1.5f;
+    private float wallAvoidanceForce = 2f;
 
     // Exploration variables
     private Vector2 explorationCenter;
     private float explorationRadius = 10f;
 
     // Separation variables
-    private float separationDistance = 2f;
-    private float separationForce = 1.5f;
+    private float separationDistance = 10f; // Increased from 3f to encourage more separation
+    private float separationForce = 5f; // Increased from 2f to make separation a stronger priority
 
     // Stuck detection
     private Vector2 lastPosition;
@@ -242,6 +242,14 @@ public class neuralNetwork : MonoBehaviour
         {
             population.Add(this);
         }
+
+        // Spread out the initial positions
+        if (isInitialPopulation)
+        {
+            float spreadRadius = 20f; // Increased from 10f to spread bots further apart initially
+            Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * spreadRadius;
+            transform.position = new Vector3(randomOffset.x, randomOffset.y, 0);
+        }
     }
 
     // Update is called once per frame
@@ -293,9 +301,9 @@ public class neuralNetwork : MonoBehaviour
                     movement += toCenter.normalized * 0.3f;
                 }
 
-                // Apply separation force
+                // Apply separation force (increased priority)
                 Vector2 separationForce = CalculateSeparationForce();
-                movement += separationForce;
+                movement += separationForce * 2f; // Doubled the influence of separation
 
                 // Apply wall repel force (with reduced effect)
                 Vector2 wallRepelForce = CalculateWallRepelForce();
@@ -329,9 +337,19 @@ public class neuralNetwork : MonoBehaviour
             UpdateExploredCells();
         }
 
-        // Increase score based on exploration and reduce it based on the distance from the destination
-        score += exploredCells.Count * 0.1f * Time.deltaTime;
-        score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.5f;
+        // Increase score based on separation from other bots
+        float totalSeparation = 0f;
+        foreach (var bot in population)
+        {
+            if (bot != this)
+            {
+                totalSeparation += Vector2.Distance(transform.position, bot.transform.position);
+            }
+        }
+        score += totalSeparation * Time.deltaTime;
+
+        // Reduce score based on the distance from the destination (less priority)
+        score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.1f;
 
         // Check if all bots have finished or a time limit has been reached
         if (population.Count > 0 && (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f)) // 60 seconds time limit
@@ -606,7 +624,12 @@ public class neuralNetwork : MonoBehaviour
     {
         score = 0;
         foundPlayer = false;
-        transform.position = new Vector3(UnityEngine.Random.Range(-5f, 5f), UnityEngine.Random.Range(-5f, 5f), 0); // Random starting position
+        
+        // Spread out the bots more for the new generation
+        float spreadRadius = 30f; // Increased from 15f to spread bots even further apart
+        Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * spreadRadius;
+        transform.position = new Vector3(randomOffset.x, randomOffset.y, 0);
+        
         rb.velocity = Vector2.zero;
         currentVelocity = Vector2.zero;
         SetNewExplorationDirection();
