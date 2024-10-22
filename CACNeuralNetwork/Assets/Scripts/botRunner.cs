@@ -5,15 +5,36 @@ using System;
 using System.Linq;
 using System.Threading;
 using Unity.VisualScripting;
+using TMPro;
+using UnityEngine.UI;
+using UnityEditor.Experimental.GraphView;
 
 public class botRunner : MonoBehaviour
 {
     public int botAmount;//needs to be even
     public GameObject bot;
     public GameObject[] bots;
-    public 
+
+    //settings ui (yall im sorry about the amount of public stuff)
+    public GameObject settings;
+    public TextMeshProUGUI genTxt;
+    public TextMeshProUGUI timerTxt;
+    public TextMeshProUGUI layersTxt;
+    public TextMeshProUGUI neuronsTxt;
+    public TextMeshProUGUI mutateTxt;
+    public TextMeshProUGUI botsTxt;
+    public UnityEngine.UI.Slider layersSlider;
+    public UnityEngine.UI.Slider neuronsSlider;
+    public UnityEngine.UI.Slider mutateSlider;
+    public UnityEngine.UI.Slider botsSlider;
+    public Button resetBtn;
+    public Button startBtn;
+    public int layerAmount = 2;
+    public int hlnAmount = 6; //hidden layer neuron amount
+    public float mutateChance = 3;
+
     float[] scores;
-    int botNum;
+    public int botNum;
     float timer = 0;
 
     [SerializeField] public bool start = false;
@@ -23,8 +44,6 @@ public class botRunner : MonoBehaviour
         {
             bots[botNum - 1] = Instantiate(bot);
             bots[botNum - 1].name = (botNum).ToString();
-            bots[botNum - 1].GetComponent<neuralNetwork>().id = botNum;
-            scores[botNum - 1] = bots[botNum - 1].GetComponent<neuralNetwork>().score;
         }
     }
     void nextGen()
@@ -46,7 +65,7 @@ public class botRunner : MonoBehaviour
                 {
                     float score = neuralNetworkComponent.score;
                     scores[i] = score;
-                    Debug.Log("Score: " + score);
+                    //Debug.Log("Score: " + score);
                 }
             }
 
@@ -128,22 +147,25 @@ public class botRunner : MonoBehaviour
     void Start()
 
     {
-        bots = new GameObject[botAmount];
-        scores = new float[botAmount];
+        resetBtn.onClick.AddListener(resetSettings);
+        startBtn.onClick.AddListener(StartRunning);
+        layersSlider.onValueChanged.AddListener(delegate { sliderChanged(layersSlider); });
+        neuronsSlider.onValueChanged.AddListener(delegate { sliderChanged(neuronsSlider); });
+        mutateSlider.onValueChanged.AddListener(delegate { sliderChanged(mutateSlider); });
+        botsSlider.onValueChanged.AddListener(delegate { sliderChanged(botsSlider); });
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !start)
-        {
-            firstGen();
-            start = true;
+        if (Input.GetKey(KeyCode.Space) && !start) { 
+        settings.SetActive(true);
         }
 
         if (start)
         {
-        timer -= Time.deltaTime;
+            settings.SetActive(false);
+            timer -= Time.deltaTime;
         if (timer <= 0)
         {
             timer = 15;
@@ -151,5 +173,45 @@ public class botRunner : MonoBehaviour
         }
         }
         
+    }
+
+    void StartRunning()
+    {
+        bots = new GameObject[botAmount];
+        scores = new float[botAmount];
+        firstGen();
+        start = true;
+    }
+
+    void resetSettings()
+    {
+        layerAmount = 2;
+        layersSlider.value = layerAmount;
+        hlnAmount = 6; //hidden layer neuron amount
+        neuronsSlider.value = hlnAmount;
+        mutateChance = 3;
+        mutateSlider.value = mutateChance;
+        botAmount = 32;
+        botsSlider.value = botAmount;
+    }
+
+    void sliderChanged(Slider slider)
+    {
+        if (slider == layersSlider) {
+            layerAmount = (int)layersSlider.value;
+            layersTxt.text = "Hidden layers: " + layerAmount;
+        } else if(slider == neuronsSlider)
+        {
+            hlnAmount = (int)neuronsSlider.value;
+            neuronsTxt.text = "Neurons: " + hlnAmount;
+        } else if(slider == mutateSlider) {
+            mutateChance = mutateSlider.value;
+            mutateTxt.text = "Mutate chance: " + mutateChance + "%";
+        } else if(slider == botsSlider)
+        {
+            botAmount = (int)botsSlider.value;
+            botsTxt.text = "Bots: " + botAmount;
+        }
+
     }
 }

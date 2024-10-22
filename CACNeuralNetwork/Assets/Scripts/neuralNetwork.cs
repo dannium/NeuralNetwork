@@ -12,13 +12,12 @@ public class neuralNetwork : MonoBehaviour
     [SerializeField] System.Random random;
     float destinationX;
     float destinationY;
-    public float score = 0f;
+    public float score = 0;
+    public int layerAmount; //number of layers in network (probably gonna be 4)
+    public int[] neuronAmount; //number of neurons in each layer
     [SerializeField] int[] layers; //amount of neurons in each layer
     [SerializeField] float[][] neurons; //layer of neuron, specific neuron
     public float[][][] weights; //layer of weight, neuron weight affects, weight's value
-
-    public int layerAmount; //number of layers in network (probably gonna be 4)
-    public int[] neuronAmount; //number of neurons in each layer
 
     public float bias; // starting weight for all weights
 
@@ -200,6 +199,25 @@ public class neuralNetwork : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        botRunner br = GameObject.Find("generationRunner").GetComponent<botRunner>();
+        id = br.botNum;
+        layerAmount = br.layerAmount + 2;
+        int[] neuronsAmount = new int[layerAmount];
+        for (int i = 0; i < neuronsAmount.Length; i++)
+        {
+            if (i == 0 || i == neuronsAmount.Length - 1)
+            {
+                neuronsAmount[i] = 2; //sets amount of inputs and outputs
+                print(i);
+            }
+            else
+            {
+                neuronsAmount[i] = br.hlnAmount; //sets amount of neurons in hidden layers
+            }
+        }
+        neuronAmount = neuronsAmount;
+        mutateChance = br.mutateChance;
+
         destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
         destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
         random = new System.Random(id); // Initialize the random variable with id as seed
