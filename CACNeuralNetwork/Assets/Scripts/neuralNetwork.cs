@@ -377,6 +377,12 @@ public class neuralNetwork : MonoBehaviour
                 directionToPlayer.Normalize();
                 Vector2 movement = directionToPlayer * foundPlayerMoveSpeed;
                 rb.velocity = movement;
+            moveSpeed = 0;
+            if(transform.position.x - destinationX < 1 && transform.position.y - destinationY < 1) {
+                //bot is at plr
+            }  else {
+                rb.constraints = RigidbodyConstraints2D.FreezePosition;
+                transform.position = new Vector2(Mathf.Lerp(transform.position.x, destinationX, 0.01f), Mathf.Lerp(transform.position.y, destinationY, 0.01f));
             }
             else
             {
