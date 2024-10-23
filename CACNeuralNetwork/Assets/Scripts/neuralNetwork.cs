@@ -335,6 +335,17 @@ public class neuralNetwork : MonoBehaviour
 
             lastPosition = rb.position;
             UpdateExploredCells();
+            GameObject player = GameObject.FindGameObjectWithTag("plr");
+            if (player != null)
+            {
+                Vector2 directionToPlayer = (player.transform.position - transform.position).normalized;
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, Mathf.Infinity);
+
+                if (hit.collider != null && hit.collider.gameObject == player && hit.distance < 10)
+                {
+                score += 10 -hit.distance; 
+                }
+            }
         }
 
         // Increase score based on separation from other bots
