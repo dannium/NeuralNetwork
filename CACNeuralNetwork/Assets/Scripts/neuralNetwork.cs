@@ -368,21 +368,12 @@ public class neuralNetwork : MonoBehaviour
             }
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         } else {
-            // After finding the player, move faster and in all directions
-            Vector2 directionToPlayer = new Vector2(destinationX - transform.position.x, destinationY - transform.position.y);
-            float distanceToPlayer = directionToPlayer.magnitude;
-
-            if (distanceToPlayer > 0.1f) // If not very close to the player
-            {
-                directionToPlayer.Normalize();
-                Vector2 movement = directionToPlayer * foundPlayerMoveSpeed;
-                rb.velocity = movement;
+            moveSpeed = 0;
+            if(transform.position.x - destinationX < 1 && transform.position.y - destinationY < 1) {
+                //bot is at plr
+            }  else {
+                transform.position = new Vector2(Mathf.Lerp(transform.position.x, destinationX, 0.01f), Mathf.Lerp(transform.position.y, destinationY, 0.01f));
             }
-            else
-            {
-                rb.velocity = Vector2.zero; // Stop when very close to the player
-            }
-
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
