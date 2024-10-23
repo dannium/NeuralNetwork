@@ -24,12 +24,13 @@ public class botRunner : MonoBehaviour
     public TextMeshProUGUI neuronsTxt;
     public TextMeshProUGUI mutateTxt;
     public TextMeshProUGUI botsTxt;
-    public UnityEngine.UI.Slider layersSlider;
-    public UnityEngine.UI.Slider neuronsSlider;
-    public UnityEngine.UI.Slider mutateSlider;
-    public UnityEngine.UI.Slider botsSlider;
+    public Slider layersSlider;
+    public Slider neuronsSlider;
+    public Slider mutateSlider;
+    public Slider botsSlider;
     public Button resetBtn;
     public Button startBtn;
+    public TMP_Text SpaceTxt;
     public int layerAmount = 2;
     public int hlnAmount = 6; //hidden layer neuron amount
     public float mutateChance = 3;
@@ -174,6 +175,7 @@ public class botRunner : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space) && !start) { 
         settings.SetActive(true);
+        SpaceTxt.enabled = false;
         }
 
         if (start)
