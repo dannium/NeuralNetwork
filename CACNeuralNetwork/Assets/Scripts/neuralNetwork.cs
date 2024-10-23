@@ -32,12 +32,19 @@ public class neuralNetwork : MonoBehaviour
     bool foundPlayer = false;
     float moveSpeed = 3f;
 
-    // Simplified variables for exploration
+    // Complex exploration variables
     private Vector2 currentExplorationDirection;
     private float explorationTimer = 0f;
     private float explorationInterval = 5f;
-    private HashSet<Vector2Int> exploredCells = new HashSet<Vector2Int>();
+    private Dictionary<Vector2Int, float> exploredCells = new Dictionary<Vector2Int, float>();
     private float cellSize = 2f;
+    private float explorationDecayRate = 0.95f;
+    private float explorationBoostFactor = 1.5f;
+    private Vector2Int currentCell;
+    private Queue<Vector2Int> explorationPath = new Queue<Vector2Int>();
+    private int pathLength = 10;
+    private float explorationNoiseScale = 0.1f;
+    private float explorationNoiseFrequency = 0.5f;
 
     // Simplified movement variables
     private Vector2 currentVelocity;
@@ -256,6 +263,9 @@ public class neuralNetwork : MonoBehaviour
             Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * spreadRadius;
             transform.position = new Vector3(randomOffset.x, randomOffset.y, 0);
         }
+
+        // Initialize the exploration path
+        GenerateExplorationPath();
     }
 
     // Update is called once per frame
@@ -313,6 +323,10 @@ public class neuralNetwork : MonoBehaviour
                 // Apply wall repel force (with reduced effect)
                 Vector2 wallRepelForce = CalculateWallRepelForce();
                 movement += wallRepelForce * 0.5f; // Reduced influence of wall repel
+
+                // Apply exploration bias based on cell visitation frequency
+                Vector2 explorationBias = CalculateExplorationBias();
+                movement += explorationBias * 0.5f;
 
                 // Normalize the movement vector again to maintain constant direction
                 movement.Normalize();
@@ -383,16 +397,131 @@ public class neuralNetwork : MonoBehaviour
         }
     }
 
-    // Set a new random exploration direction
+    // Set a new exploration direction using a complex method
     private void SetNewExplorationDirection()
     {
-        currentExplorationDirection = UnityEngine.Random.insideUnitCircle.normalized;
-        
+        // Update the current cell
+        currentCell = new Vector2Int(
+            Mathf.FloorToInt(transform.position.x / cellSize),
+            Mathf.FloorToInt(transform.position.y / cellSize)
+        );
+
+        // If the exploration path is empty or we've reached the end, generate a new path
+        if (explorationPath.Count == 0 || currentCell == explorationPath.Peek())
+        {
+            GenerateExplorationPath();
+        }
+
+        // Get the next cell in the path
+        Vector2Int targetCell = explorationPath.Peek();
+
+        // Calculate the direction to the next cell
+        Vector2 directionToTarget = new Vector2(
+            (targetCell.x - currentCell.x) * cellSize,
+            (targetCell.y - currentCell.y) * cellSize
+        ).normalized;
+
+        // Add some noise to the direction for more natural movement
+        float noiseX = Mathf.PerlinNoise(Time.time * explorationNoiseFrequency, 0) * 2 - 1;
+        float noiseY = Mathf.PerlinNoise(0, Time.time * explorationNoiseFrequency) * 2 - 1;
+        Vector2 noise = new Vector2(noiseX, noiseY) * explorationNoiseScale;
+
+        currentExplorationDirection = (directionToTarget + noise).normalized;
+
+        // If we've reached the target cell, move to the next one in the path
+        if (Vector2.Distance(transform.position, new Vector2(targetCell.x * cellSize, targetCell.y * cellSize)) < cellSize * 0.5f)
+        {
+            explorationPath.Dequeue();
+        }
+
         // Occasionally set a new exploration center
         if (UnityEngine.Random.value < 0.2f)
         {
             explorationCenter = (Vector2)transform.position + UnityEngine.Random.insideUnitCircle * explorationRadius;
         }
+    }
+
+    // Generate a new exploration path
+    private void GenerateExplorationPath()
+    {
+        explorationPath.Clear();
+        Vector2Int currentCell = new Vector2Int(
+            Mathf.FloorToInt(transform.position.x / cellSize),
+            Mathf.FloorToInt(transform.position.y / cellSize)
+        );
+
+        for (int i = 0; i < pathLength; i++)
+        {
+            Vector2Int nextCell = GetLeastExploredNeighbor(currentCell);
+            explorationPath.Enqueue(nextCell);
+            currentCell = nextCell;
+        }
+    }
+
+    // Get the least explored neighboring cell
+    private Vector2Int GetLeastExploredNeighbor(Vector2Int cell)
+    {
+        Vector2Int[] neighbors = new Vector2Int[]
+        {
+            new Vector2Int(cell.x + 1, cell.y),
+            new Vector2Int(cell.x - 1, cell.y),
+            new Vector2Int(cell.x, cell.y + 1),
+            new Vector2Int(cell.x, cell.y - 1)
+        };
+
+        Vector2Int leastExploredCell = cell;
+        float minExplorationValue = float.MaxValue;
+
+        foreach (Vector2Int neighbor in neighbors)
+        {
+            if (!exploredCells.ContainsKey(neighbor))
+            {
+                return neighbor; // If we find an unexplored cell, immediately return it
+            }
+
+            if (exploredCells[neighbor] < minExplorationValue)
+            {
+                minExplorationValue = exploredCells[neighbor];
+                leastExploredCell = neighbor;
+            }
+        }
+
+        return leastExploredCell;
+    }
+
+    // Calculate exploration bias based on cell visitation frequency
+    private Vector2 CalculateExplorationBias()
+    {
+        Vector2 bias = Vector2.zero;
+        Vector2Int currentCell = new Vector2Int(
+            Mathf.FloorToInt(transform.position.x / cellSize),
+            Mathf.FloorToInt(transform.position.y / cellSize)
+        );
+
+        Vector2Int[] neighbors = new Vector2Int[]
+        {
+            new Vector2Int(currentCell.x + 1, currentCell.y),
+            new Vector2Int(currentCell.x - 1, currentCell.y),
+            new Vector2Int(currentCell.x, currentCell.y + 1),
+            new Vector2Int(currentCell.x, currentCell.y - 1)
+        };
+
+        foreach (Vector2Int neighbor in neighbors)
+        {
+            if (!exploredCells.ContainsKey(neighbor))
+            {
+                // Strongly bias towards unexplored cells
+                bias += new Vector2(neighbor.x - currentCell.x, neighbor.y - currentCell.y).normalized * explorationBoostFactor;
+            }
+            else
+            {
+                // Bias towards less explored cells
+                float explorationValue = exploredCells[neighbor];
+                bias += new Vector2(neighbor.x - currentCell.x, neighbor.y - currentCell.y).normalized * (1f - explorationValue);
+            }
+        }
+
+        return bias.normalized;
     }
 
     // Calculate force to avoid walls
@@ -473,7 +602,32 @@ public class neuralNetwork : MonoBehaviour
             Mathf.FloorToInt(transform.position.x / cellSize),
             Mathf.FloorToInt(transform.position.y / cellSize)
         );
-        exploredCells.Add(currentCell);
+
+        if (!exploredCells.ContainsKey(currentCell))
+        {
+            exploredCells[currentCell] = 1f;
+        }
+        else
+        {
+            exploredCells[currentCell] += 1f;
+        }
+
+        // Apply decay to all explored cells
+        List<Vector2Int> cellsToRemove = new List<Vector2Int>();
+        foreach (var cell in new List<Vector2Int>(exploredCells.Keys))
+        {
+            exploredCells[cell] *= explorationDecayRate;
+            if (exploredCells[cell] < 0.01f)
+            {
+                cellsToRemove.Add(cell);
+            }
+        }
+
+        // Remove cells with very low exploration values
+        foreach (var cell in cellsToRemove)
+        {
+            exploredCells.Remove(cell);
+        }
     }
 
     // Handle collision with walls
@@ -666,6 +820,7 @@ public class neuralNetwork : MonoBehaviour
         SetNewExplorationDirection();
         exploredCells.Clear();
         explorationCenter = transform.position;
+        GenerateExplorationPath();
     }
 
     // Set this bot as part of the initial population
