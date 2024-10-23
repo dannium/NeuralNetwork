@@ -6,6 +6,10 @@ using TMPro;
 using Unity.VisualScripting;
 using System.Threading;
 using System.Xml;
+using System.Transactions;
+using UnityEditor.Callbacks;
+using System.Security.Cryptography;
+using System.Data;
 
 public class neuralNetwork : MonoBehaviour
 {
@@ -151,6 +155,8 @@ public class neuralNetwork : MonoBehaviour
     // Create a child neural network with potential mutations
     public GameObject createChild(int id)
     {
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        foundPlayer = false;
         score = 0;
         GameObject Child = Instantiate(transform.gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>();
@@ -256,8 +262,7 @@ public class neuralNetwork : MonoBehaviour
     void Update()
     {
         if (!foundPlayer)
-        {
-            // Check if the bot is stuck
+        {            // Check if the bot is stuck
             if (Vector2.Distance(rb.position, lastPosition) < 0.01f)
             {
                 stuckTime += Time.deltaTime;
@@ -346,8 +351,15 @@ public class neuralNetwork : MonoBehaviour
                 score += 10 -hit.distance; 
                 }
             }
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         } else {
             moveSpeed = 0;
+            if(transform.position.x - destinationX < 1 && transform.position.y - destinationY < 1) {
+                //bot is at plr
+            }  else {
+                transform.position = new Vector2(Mathf.Lerp(transform.position.x, destinationX, 0.01f), Mathf.Lerp(transform.position.y, destinationY, 0.01f));
+            }
+            rb.constraints = RigidbodyConstraints2D.FreezePosition;
         }
 
         // Increase score based on separation from other bots
@@ -481,9 +493,7 @@ public class neuralNetwork : MonoBehaviour
             // Add a smaller impulse force to "bounce" off the wall
             if(!foundPlayer) {
                 rb.AddForce(wallNormal * wallRepelForce * 0.2f, ForceMode2D.Impulse);
-            } else {
-                rb.AddForce(Vector2.zero);
-            }
+            } 
 
             // Reduce the score penalty for touching walls
             score -= 0.5f * Time.deltaTime; // Reduced penalty
@@ -642,6 +652,7 @@ public class neuralNetwork : MonoBehaviour
     // Reset the bot for a new generation
     private void ResetForNewGeneration()
     {
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         score = 0;
         foundPlayer = false;
         
