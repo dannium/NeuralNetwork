@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using System;
 using TMPro;
 using Unity.VisualScripting;
@@ -78,7 +79,7 @@ public class neuralNetwork : MonoBehaviour
     public static List<neuralNetwork> population = new List<neuralNetwork>();
     public static int generationCount = 0;
     public static int populationSize = 50;
-    public static float elitePercentage = 0.1f;
+    public static float elitePercentage = 1f;
     public static float crossoverRate = 0.7f;
 
     private bool isInitialPopulation = false;
@@ -110,7 +111,7 @@ public class neuralNetwork : MonoBehaviour
                 weights[i][j] = new float[neuronAmount[i+1]];
                 for (int k = 0; k < neuronAmount[i+1]; k++)
                 {
-                    weights[i][j][k] = (float)random.NextDouble() - 0.5f;
+                    weights[i][j][k] = UnityEngine.Random.Range(-0.5f, 0.5f);
                 }
             }
         }
@@ -222,7 +223,6 @@ public class neuralNetwork : MonoBehaviour
             if (i == 0 || i == neuronsAmount.Length - 1)
             {
                 neuronsAmount[i] = 2; //sets amount of inputs and outputs
-                Debug.Log(i);
             }
             else
             {
@@ -274,6 +274,8 @@ public class neuralNetwork : MonoBehaviour
     {
         if (!foundPlayer)
         {            
+            Vector2 distToPlr = (GameObject.FindGameObjectWithTag("plr").transform.position - transform.position);
+            score -= 5*Mathf.Abs(distToPlr.x + distToPlr.y);
             // Check if the bot is stuck
             if (Vector2.Distance(rb.position, lastPosition) < 0.01f)
             {
@@ -303,7 +305,10 @@ public class neuralNetwork : MonoBehaviour
             {
                 Vector2 movement = new Vector2(outputArray[0], outputArray[1]);
                 movement.Normalize(); // Ensure movement has a constant magnitude
-
+                if (Selection.activeObject == gameObject)
+                {
+                    print(outputArray[0] + ", " + outputArray[1]);
+                }
                 // Blend the neural network output with the exploration direction
                 movement = Vector2.Lerp(movement, currentExplorationDirection, 0.5f);
 
@@ -360,11 +365,12 @@ public class neuralNetwork : MonoBehaviour
             if (player != null)
             {
                 Vector2 directionToPlayer = (player.transform.position - transform.position).normalized;
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, Mathf.Infinity);
+                int layerMask = ~(1 << LayerMask.NameToLayer("bot"));
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, Mathf.Infinity, layerMask);
 
                 if (hit.collider != null && hit.collider.gameObject == player && hit.distance < 10)
                 {
-                    score += 10 - hit.distance; 
+                    score += 10*(10 - hit.distance); //sees plr
                 }
             }
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -663,14 +669,14 @@ public class neuralNetwork : MonoBehaviour
             } 
 
             // Reduce the score penalty for touching walls
-            score -= 0.5f * Time.deltaTime; // Reduced penalty
+            score -= 5f * Time.deltaTime; // Reduced penalty
         }
     }
 
     // Handle collision with edges and player
     private void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.CompareTag("edge"))
+        if (col.gameObject.CompareTag("wall"))
         {
             Vector2 edgeNormal = col.contacts[0].normal;
             float offset = 0.05f; // Further reduced offset for more natural movement
