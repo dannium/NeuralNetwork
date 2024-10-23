@@ -346,6 +346,8 @@ public class neuralNetwork : MonoBehaviour
                 score += 10 -hit.distance; 
                 }
             }
+        } else {
+            moveSpeed = 0;
         }
 
         // Increase score based on separation from other bots
@@ -477,7 +479,11 @@ public class neuralNetwork : MonoBehaviour
             currentExplorationDirection = Vector2.Lerp(currentExplorationDirection, wallNormal.normalized, 0.3f);
 
             // Add a smaller impulse force to "bounce" off the wall
-            rb.AddForce(wallNormal * wallRepelForce * 0.2f, ForceMode2D.Impulse);
+            if(!foundPlayer) {
+                rb.AddForce(wallNormal * wallRepelForce * 0.2f, ForceMode2D.Impulse);
+            } else {
+                rb.AddForce(Vector2.zero);
+            }
 
             // Reduce the score penalty for touching walls
             score -= 0.5f * Time.deltaTime; // Reduced penalty
@@ -511,8 +517,6 @@ public class neuralNetwork : MonoBehaviour
         {
             score += 10000;
             foundPlayer = true;
-            moveSpeed = 0;
-            print("foieif9eo");
         }
     }
 
