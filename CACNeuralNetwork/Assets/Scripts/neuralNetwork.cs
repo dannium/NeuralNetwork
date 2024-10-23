@@ -335,7 +335,9 @@ public class neuralNetwork : MonoBehaviour
 
             lastPosition = rb.position;
             UpdateExploredCells();
-        }
+        } else {
+            // Move towards the player
+            rb.velocity = Vector2.zero;
 
         // Increase score based on separation from other bots
         float totalSeparation = 0f;
