@@ -372,6 +372,7 @@ public class neuralNetwork : MonoBehaviour
             if(transform.position.x - destinationX < 1 && transform.position.y - destinationY < 1) {
                 //bot is at plr
             }  else {
+                rb.constraints = RigidbodyConstraints2D.FreezePosition;
                 transform.position = new Vector2(Mathf.Lerp(transform.position.x, destinationX, 0.01f), Mathf.Lerp(transform.position.y, destinationY, 0.01f));
             }
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
