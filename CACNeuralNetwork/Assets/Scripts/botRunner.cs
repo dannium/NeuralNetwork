@@ -7,7 +7,6 @@ using System.Threading;
 using Unity.VisualScripting;
 using TMPro;
 using UnityEngine.UI;
-using UnityEditor.Experimental.GraphView;
 using Cinemachine;
 
 public class botRunner : MonoBehaviour
@@ -24,12 +23,13 @@ public class botRunner : MonoBehaviour
     public TextMeshProUGUI neuronsTxt;
     public TextMeshProUGUI mutateTxt;
     public TextMeshProUGUI botsTxt;
-    public UnityEngine.UI.Slider layersSlider;
-    public UnityEngine.UI.Slider neuronsSlider;
-    public UnityEngine.UI.Slider mutateSlider;
-    public UnityEngine.UI.Slider botsSlider;
+    public Slider layersSlider;
+    public Slider neuronsSlider;
+    public Slider mutateSlider;
+    public Slider botsSlider;
     public Button resetBtn;
     public Button startBtn;
+    public TMP_Text SpaceTxt;
     public int layerAmount = 2;
     public int hlnAmount = 6; //hidden layer neuron amount
     public float mutateChance = 3;
@@ -51,7 +51,7 @@ public class botRunner : MonoBehaviour
         {
             bots[botNum - 1] = Instantiate(bot);
             bots[botNum - 1].name = (botNum).ToString();
-            bots[botNum - 1].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+            bots[botNum - 1].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
         }
     }
     void nextGen()
@@ -110,7 +110,7 @@ public class botRunner : MonoBehaviour
         int index = 0;
         for (int i = 0; i < botsList.Count; i++)
         {
-            botsList[i].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+            botsList[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
             bots[i] = botsList[i];
             index++;
         }
@@ -121,7 +121,7 @@ public class botRunner : MonoBehaviour
             {
                 scores[i] = 0;
                 bots[i] = botsList[i - index].GetComponent<neuralNetwork>().createChild(botNum);
-                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
                 botNum++;
             }
             else
@@ -129,7 +129,7 @@ public class botRunner : MonoBehaviour
                 //If no parent is available, instantiate a new bot
                 bots[i] = Instantiate(bot);
                 bots[i].name = "AHHHHHHHHHHHHH";
-                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
                 botNum++;
             }
         }
@@ -174,6 +174,7 @@ public class botRunner : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space) && !start) { 
         settings.SetActive(true);
+        SpaceTxt.enabled = false;
         }
 
         if (start)
