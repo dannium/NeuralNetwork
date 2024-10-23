@@ -375,11 +375,11 @@ public class neuralNetwork : MonoBehaviour
             Vector2 directionToPlayer = new Vector2(destinationX - transform.position.x, destinationY - transform.position.y);
             float distanceToPlayer = directionToPlayer.magnitude;
 
-            if (distanceToPlayer > 0.1f) // If not very close to the player
+            if (distanceToPlayer > 0.1f && distanceToPlayer < 10) // If  very close to the player
             {
                 directionToPlayer.Normalize();
                 Vector2 movement = directionToPlayer * foundPlayerMoveSpeed;
-                rb.velocity = movement;
+                rb.velocity = movement; // Move towards the player if close to the player
             }
             else
             {
