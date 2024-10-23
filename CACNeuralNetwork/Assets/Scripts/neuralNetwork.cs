@@ -504,10 +504,15 @@ public class neuralNetwork : MonoBehaviour
             // Reduce the penalty for hitting edges
             score -= 10f;
         }
-        else if (col.gameObject.tag == "plr")
+    }
+
+    private void OnTriggerEnter2D(Collider2D col) {
+        if (col.gameObject.tag == "plr" & !foundPlayer)
         {
             score += 10000;
             foundPlayer = true;
+            moveSpeed = 0;
+            print("foieif9eo");
         }
     }
 
