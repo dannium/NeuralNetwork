@@ -818,3 +818,4 @@ public class neuralNetwork : MonoBehaviour
         isInitialPopulation = true;
     }
 }
+//fuck
