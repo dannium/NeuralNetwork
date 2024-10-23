@@ -51,7 +51,7 @@ public class botRunner : MonoBehaviour
         {
             bots[botNum - 1] = Instantiate(bot);
             bots[botNum - 1].name = (botNum).ToString();
-            bots[botNum - 1].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+            bots[botNum - 1].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
         }
     }
     void nextGen()
@@ -110,7 +110,7 @@ public class botRunner : MonoBehaviour
         int index = 0;
         for (int i = 0; i < botsList.Count; i++)
         {
-            botsList[i].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+            botsList[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
             bots[i] = botsList[i];
             index++;
         }
@@ -121,7 +121,7 @@ public class botRunner : MonoBehaviour
             {
                 scores[i] = 0;
                 bots[i] = botsList[i - index].GetComponent<neuralNetwork>().createChild(botNum);
-                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
                 botNum++;
             }
             else
@@ -129,7 +129,7 @@ public class botRunner : MonoBehaviour
                 //If no parent is available, instantiate a new bot
                 bots[i] = Instantiate(bot);
                 bots[i].name = "AHHHHHHHHHHHHH";
-                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
+                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
                 botNum++;
             }
         }
