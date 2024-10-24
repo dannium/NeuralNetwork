@@ -1,14 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System;
 using TMPro;
 using Unity.VisualScripting;
 using System.Threading;
 using System.Xml;
 using System.Transactions;
-using UnityEditor.Callbacks;
+//using UnityEditor.Callbacks;
 using System.Security.Cryptography;
 using System.Data;
 
@@ -305,10 +304,7 @@ public class neuralNetwork : MonoBehaviour
             {
                 Vector2 movement = new Vector2(outputArray[0], outputArray[1]);
                 movement.Normalize(); // Ensure movement has a constant magnitude
-                if (Selection.activeObject == gameObject)
-                {
-                    print(outputArray[0] + ", " + outputArray[1]);
-                }
+                
                 // Blend the neural network output with the exploration direction
                 movement = Vector2.Lerp(movement, currentExplorationDirection, 0.5f);
 
