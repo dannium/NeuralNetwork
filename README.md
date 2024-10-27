@@ -1,4 +1,4 @@
-# Neural Network Hide n' Seek for Congressional App Challenge 2024 "Hidden Data"
+# Neural Network Hide n' Seek called"Hidden Data"
 
 
 ### - Overview -
