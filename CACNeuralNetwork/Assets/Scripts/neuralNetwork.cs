@@ -172,7 +172,8 @@ public class neuralNetwork : MonoBehaviour
         nn.score = 0;
         nn.id = this.id;
         nn.random = new System.Random(id);
-        nn.layers = new int[layerAmount];
+        nn.layers = layers;
+        nn.neurons = neurons;
         nn.layerAmount = layerAmount;
         nn.neuronAmount = neuronAmount;
         nn.bias = bias;
@@ -183,10 +184,8 @@ public class neuralNetwork : MonoBehaviour
         {
             nn.layers[i] = neuronAmount[i];
         }
-
-        nn.initNeurons();
-        nn.initWeights();
-
+        nn.weights = weights;
+        /*
         for (int i = 0; i < layerAmount - 1; i++)
         {
             nn.weights[i] = new float[neuronAmount[i]][];
@@ -205,7 +204,7 @@ public class neuralNetwork : MonoBehaviour
                     }
                 }
             }
-        }
+        }*/
 
         return Child;
     }
@@ -241,8 +240,11 @@ public class neuralNetwork : MonoBehaviour
         }
 
         //initalize neurons and weights
-        initNeurons();
-        initWeights();
+        print(br.getGen());
+        if(br.getGen() == 2) {
+            initNeurons();
+            initWeights();
+        }
         rb = GetComponent<Rigidbody2D>();
         lastPosition = rb.position;
         SetNewExplorationDirection();

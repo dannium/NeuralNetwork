@@ -44,6 +44,10 @@ public class botRunner : MonoBehaviour
 
     int gen = 1;
 
+    public int getGen() {
+        return gen;
+    }
+    
     [SerializeField] public bool start = false;
     void firstGen()
     {
