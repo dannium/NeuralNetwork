@@ -13,7 +13,7 @@ public class botRunner : MonoBehaviour
 {
     public int botAmount = 32;//needs to be even
     public GameObject bot;
-    public GameObject[] bots;
+    public List<GameObject> bots;
 
     //settings ui (yall im sorry about the amount of public stuff)
     public GameObject settings;
@@ -40,7 +40,7 @@ public class botRunner : MonoBehaviour
 
     float[] scores;
     public int botNum;
-    float timer = 0;
+    public float timer = 0;
 
     int gen = 1;
 
@@ -51,17 +51,19 @@ public class botRunner : MonoBehaviour
     [SerializeField] public bool start = false;
     void firstGen()
     {
-        for (botNum = 1; botNum < bots.Length + 1; botNum++)
+        bots = new List<GameObject>(botAmount);
+        for (botNum = 1; botNum < botAmount + 1; botNum++)
         {
-            bots[botNum - 1] = Instantiate(bot);
-            bots[botNum - 1].name = (botNum).ToString();
-            bots[botNum - 1].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+            GameObject newBot = Instantiate(bot);            
+            newBot.name = (botNum).ToString();
+            bots.Add(newBot);
         }
     }
     void nextGen()
     {
         genTxt.text = "Generation " + gen;
         gen++;
+        /*
         for (int i = 0; i < scores.Length; i++)
         {
             if (bots[i] == null)
@@ -81,40 +83,42 @@ public class botRunner : MonoBehaviour
                     scores[i] = score;
                     //Debug.Log("Score: " + score);
                 }
-            }
+            } 
 
             /* print(scores[i] + "a");
              print(bots[i] + "b");*/
             /*float score = bots[i].GetComponent<neuralNetwork>().score;
             scores[i] = score;
-            print(i);*/
-        }
-        float medianScore = GetMedian(scores);
+            print(i);* /
+        } */
+        //float medianScore = GetMedian(scores);
         // lists are more optimized
-        List<float> scoresList = new List<float>();
+        //List<float> scoresList = new List<float>();
+
+        bots.Sort((a, b) => {
+            var aScore = a.GetComponent<neuralNetwork>().score;
+            var bScore = b.GetComponent<neuralNetwork>().score;
+            return aScore.CompareTo(bScore);
+        });
+
         List<GameObject> botsList = new List<GameObject>();
 
-        for (int i = 0; i < bots.Length; i++)
+        for (int i = 0; i < bots.Count/2; i++)
         {
-            if (scores[i] > medianScore)
-            {
-                botsList.Add(bots[i]); // use Add to add  bot to  list if it survived
-                scoresList.Add(scores[i]); //set score to id for testing
-            }
-            else
-            {
-                Destroy(bots[i]);
-            }
+            Destroy(bots[i]);
+        }
+        for(int i = bots.Count/2; i < bots.Count; i++) {
+            botsList.Add(bots[i]); // use Add to add  bot to  list if it survived
         }
 
         scores = new float[botAmount];
-        bots = new GameObject[botAmount];
+        //bots = new List<GameObject>[botAmount];
 
         // set first half of bots array to the bots that survived
         int index = 0;
         for (int i = 0; i < botsList.Count; i++)
         {
-            botsList[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+            botsList[i].transform.position = Vector2.zero; //new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
             bots[i] = botsList[i];
             index++;
         }
@@ -191,7 +195,7 @@ public class botRunner : MonoBehaviour
             timerTxt.text = timer.ToString("F2");
 
             if (timer <= 0) {
-            timer = 15;
+            timer = 30;
             timerTxt.text = "0:15.00";
             nextGen();
         }
@@ -201,8 +205,8 @@ public class botRunner : MonoBehaviour
 
     void StartRunning()
     {
-        bots = new GameObject[botAmount];
-        scores = new float[botAmount];
+        bots = new List<GameObject>();
+        //scores = new float[botAmount];
         firstGen();
         start = true;
     }

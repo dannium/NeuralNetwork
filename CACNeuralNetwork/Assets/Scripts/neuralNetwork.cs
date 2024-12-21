@@ -10,6 +10,7 @@ using System.Transactions;
 //using UnityEditor.Callbacks;
 using System.Security.Cryptography;
 using System.Data;
+using UnityEngine.Tilemaps;
 
 public class neuralNetwork : MonoBehaviour
 {
@@ -119,14 +120,17 @@ public class neuralNetwork : MonoBehaviour
     // Get input values for the neural network
     private float[] inputs()
     {
-        float[] array = new float[layers[0]];
+        float[] array = new float[4];
         array[0] = destinationX - transform.position.x;
         array[1] = destinationY - transform.position.y;
+        array[2] = (new Vector2(transform.position.x, transform.position.y) - GameObject.FindGameObjectWithTag("wall").GetComponent<TilemapCollider2D>().ClosestPoint(transform.position)).x;
+        array[3] = (new Vector2(transform.position.x, transform.position.y) - GameObject.FindGameObjectWithTag("wall").GetComponent<TilemapCollider2D>().ClosestPoint(transform.position)).y;
+        /*
         if (layers[0] > 2)
         {
             array[2] = currentExplorationDirection.x;
             array[3] = currentExplorationDirection.y;
-        }
+        } */
         return array;
     }
 
@@ -138,8 +142,9 @@ public class neuralNetwork : MonoBehaviour
             Debug.LogError($"Input length ({inputs.Length}) does not match first layer neuron count ({layers[0]})");
             return new float[layers[layers.Length - 1]];
         }
-
-        for (int i = 0; i < layers[0]; i++)
+        
+        //neurons[0] = new float[inputs.Length];
+        for (int i = 0; i < inputs.Length; i++)
         {
             neurons[0][i] = inputs[i];
         }
@@ -148,22 +153,22 @@ public class neuralNetwork : MonoBehaviour
         {
             for (int j = 0; j < neurons[i].Length; j++)
             {
-                float value = 0.25f;
+                float value = 0;
                 for (int k = 0; k < neurons[i - 1].Length; k++)
                 {
-                    value += neurons[i - 1][k] * weights[i - 1][k][j];
+                    value += weights[i][j][k] * neurons[i - 1][k];
                 }
                 neurons[i][j] = (float)Math.Tanh(value);
             }
         }
 
-        return neurons[layers.Length - 1];
+        return neurons[neurons.Length - 1];
     }
 
     // Create a child neural network with potential mutations
     public GameObject createChild(int id)
     {
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        //rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         foundPlayer = false;
         score = 0;
         GameObject Child = Instantiate(gameObject);
@@ -171,7 +176,7 @@ public class neuralNetwork : MonoBehaviour
         Child.name = id.ToString();
         nn.score = 0;
         nn.id = this.id;
-        nn.random = new System.Random(id);
+        //nn.random = new System.Random(id);
         nn.layers = layers;
         nn.neurons = neurons;
         //nn.layerAmount = layerAmount;
@@ -221,15 +226,21 @@ public class neuralNetwork : MonoBehaviour
         destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
         random = new System.Random(id); // Initialize the random variable with id as seed
         layers = new int[br.layerAmount + 2];
+        layers[0] = 4;
+        for(int i = 0; i < br.layerAmount; i++) {
+            layers[i + 1] = br.hlnAmount;
+        }
+        layers[br.layerAmount + 1] = 2;
 
         //initalize neurons and weights
-        print(br.getGen());
+        //print(br.getGen());
         if(br.getGen() == 2) {
             initNeurons();
             initWeights();
         }
         rb = GetComponent<Rigidbody2D>();
         lastPosition = rb.position;
+        /*
         SetNewExplorationDirection();
 
         // Set initial exploration center
@@ -251,16 +262,25 @@ public class neuralNetwork : MonoBehaviour
 
         // Initialize the exploration path
         GenerateExplorationPath();
+        */
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(neurons == null) {
+            initNeurons();
+        }
+        if(weights == null) {
+            initWeights();
+        }
         if (!foundPlayer)
         {            
             Vector2 distToPlr = (GameObject.FindGameObjectWithTag("plr").transform.position - transform.position);
-            score -= 5*Mathf.Abs(distToPlr.x + distToPlr.y);
-            // Check if the bot is stuck
+            score -= 5*Mathf.Abs(distToPlr.x);
+            score -= 5*Mathf.Abs(distToPlr.y); 
+            
+            /* // Check if the bot is stuck
             if (Vector2.Distance(rb.position, lastPosition) < 0.01f)
             {
                 stuckTime += Time.deltaTime;
@@ -282,12 +302,12 @@ public class neuralNetwork : MonoBehaviour
                 SetNewExplorationDirection();
                 explorationTimer = 0f;
             }
-
+            */
             // Get output and normalize it to maintain constant speed
             float[] outputArray = outputs(inputs());
             if (outputArray.Length >= 2)
             {
-                Vector2 movement = new Vector2(outputArray[0], outputArray[1]);
+                /*Vector2 movement = new Vector2(outputArray[0], outputArray[1]);
                 movement.Normalize(); // Ensure movement has a constant magnitude
                 
                 // Blend the neural network output with the exploration direction
@@ -333,13 +353,14 @@ public class neuralNetwork : MonoBehaviour
                 }
 
                 // Apply the velocity to the rigidbody
-                rb.velocity = currentVelocity;
+                rb.velocity = currentVelocity;*/
+                rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(outputArray[0] * moveSpeed, outputArray[1] * moveSpeed), 0.1f);
             }
             else
             {
                 Debug.LogError("Output array does not have enough elements");
             }
-
+            /*
             lastPosition = rb.position;
             UpdateExploredCells();
             GameObject player = GameObject.FindGameObjectWithTag("plr");
@@ -354,11 +375,11 @@ public class neuralNetwork : MonoBehaviour
                     score += 10*(10 - hit.distance); //sees plr
                 }
             }
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;*/
         } 
         else 
         {
-            // After finding the player, move faster and in all directions
+            /*// After finding the player, move faster and in all directions
             Vector2 directionToPlayer = new Vector2(destinationX - transform.position.x, destinationY - transform.position.y);
             float distanceToPlayer = directionToPlayer.magnitude;
 
@@ -373,10 +394,11 @@ public class neuralNetwork : MonoBehaviour
                 rb.velocity = Vector2.zero; // Stop when very close to the player
             }
 
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation; */
+            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, Time.deltaTime);
         }
 
-        // Increase score based on separation from other bots
+        /*// Increase score based on separation from other bots
         float totalSeparation = 0f;
         foreach (var bot in population)
         {
@@ -386,10 +408,9 @@ public class neuralNetwork : MonoBehaviour
             }
         }
         score += totalSeparation * Time.deltaTime;
-
+        */
         // Reduce score based on the distance from the destination (less priority)
-        score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.1f;
-
+        //score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.1f;
         // Check if all bots have finished or a time limit has been reached
         if (population.Count > 0 && (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f)) // 60 seconds time limit
         {
@@ -633,7 +654,7 @@ public class neuralNetwork : MonoBehaviour
     // Handle collision with walls
     private void OnCollisionStay2D(Collision2D col)
     {
-        if (col.gameObject.CompareTag("wall"))
+        /*if (col.gameObject.CompareTag("wall"))
         {
             Vector2 wallNormal = col.contacts[0].normal;
             float offset = 0.01f; // Reduced offset to allow touching walls
@@ -648,16 +669,17 @@ public class neuralNetwork : MonoBehaviour
             if(!foundPlayer) {
                 rb.AddForce(wallNormal * wallRepelForce * 0.2f, ForceMode2D.Impulse);
             } 
-
+        
             // Reduce the score penalty for touching walls
             score -= 5f * Time.deltaTime; // Reduced penalty
-        }
-    }
+        }*/
+        score -= 5f;
+    } 
 
     // Handle collision with edges and player
-    private void OnCollisionEnter2D(Collision2D col)
+    /*private void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.CompareTag("wall"))
+        /*if (col.gameObject.CompareTag("wall"))
         {
             Vector2 edgeNormal = col.contacts[0].normal;
             float offset = 0.05f; // Further reduced offset for more natural movement
@@ -673,13 +695,14 @@ public class neuralNetwork : MonoBehaviour
 
             // Reduce the penalty for hitting edges
             score -= 10f;
-        }
-    }
+        } * /
+        // Reduce the penalty for hitting edges
+    }*/
 
     private void OnTriggerEnter2D(Collider2D col) {
         if (col.gameObject.CompareTag("plr") && !foundPlayer)
         {
-            score += 10000;
+            score += 10000*GameObject.Find("generationRunner").GetComponent<botRunner>().timer;
             foundPlayer = true;
         }
     }
@@ -788,17 +811,17 @@ public class neuralNetwork : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < bot.weights.Length; i++)
+        for (int i = 1; i < bot.weights.Length; i++)
         {
-            for (int j = 0; j < bot.weights[i].Length; j++)
+            for (int j = 0; j < bot.neurons[i].Length; j++)
             {
-                for (int k = 0; k < bot.weights[i][j].Length; k++)
+                for (int k = 0; k < bot.layers[i - 1]; k++)
                 {
                     if (UnityEngine.Random.value < bot.mutateChance)
                     {
                         int random = UnityEngine.Random.Range(1, 3);
                         if(random == 1) {
-                            bot.weights[i][j][k] += UnityEngine.Random.Range(-0.1f, 0.1f);
+                            bot.weights[i][j][k] = Mathf.Clamp(bot.weights[i][j][k] + UnityEngine.Random.Range(-0.25f, 0.25f), -0.5f, 0.5f);
                         } else if(random == 2) {
                             bot.weights[i][j][k] *= UnityEngine.Random.Range(-1f, 1f);
                         } else {
@@ -816,7 +839,7 @@ public class neuralNetwork : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         score = 0;
         foundPlayer = false;
-        
+        /*
         // Spread out the bots more for the new generation
         float spreadRadius = 30f; // Increased from 15f to spread bots even further apart
         Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * spreadRadius;
@@ -828,6 +851,9 @@ public class neuralNetwork : MonoBehaviour
         exploredCells.Clear();
         explorationCenter = transform.position;
         GenerateExplorationPath();
+        */
+        transform.position = Vector2.zero;
+        rb.velocity = Vector2.zero;
     }
 
     // Set this bot as part of the initial population
