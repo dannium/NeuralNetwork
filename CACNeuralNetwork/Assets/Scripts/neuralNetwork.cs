@@ -17,8 +17,8 @@ public class neuralNetwork : MonoBehaviour
     float destinationX;
     float destinationY;
     public float score = 0;
-    public int layerAmount; //number of layers in network (probably gonna be 4)
-    public int[] neuronAmount; //number of neurons in each layer
+    //public int layerAmount; //number of layers in network (probably gonna be 4)
+    //public int[] neuronAmount; //number of neurons in each layer
     [SerializeField] int[] layers; //amount of neurons in each layer
     [SerializeField] float[][] neurons; //layer of neuron, specific neuron
     public float[][][] weights; //layer of weight, neuron weight affects, weight's value
@@ -86,29 +86,29 @@ public class neuralNetwork : MonoBehaviour
     // Initialize neurons for each layer
     private void initNeurons()
     {
-        neurons = new float[layerAmount][];
-        for (int i = 0; i < layerAmount; i++)
+        neurons = new float[layers.Length][];
+        for (int i = 0; i < layers.Length; i++)
         {
-            neurons[i] = new float[neuronAmount[i]];
+            neurons[i] = new float[layers[i]];
         }
     }
 
     // Initialize weights for connections between neurons
     private void initWeights()
     {
-        if (random == null)
+        /*if (random == null)
         {
             random = new System.Random(id);
         }
-        UnityEngine.Random.InitState(id);
-        weights = new float[layerAmount - 1][][];
-        for (int i = 0; i < layerAmount - 1; i++)
+        UnityEngine.Random.InitState(id); */
+        weights = new float[layers.Length][][];
+        for (int i = 1; i < weights.Length; i++)
         {  
-            weights[i] = new float[neuronAmount[i]][];
-            for (int j = 0; j < neuronAmount[i]; j++)
+            weights[i] = new float[layers[i]][];
+            for (int j = 0; j < neurons[i].Length; j++)
             {
-                weights[i][j] = new float[neuronAmount[i+1]];
-                for (int k = 0; k < neuronAmount[i+1]; k++)
+                weights[i][j] = new float[layers[i-1]];
+                for (int k = 0; k < layers[i-1]; k++)
                 {
                     weights[i][j][k] = UnityEngine.Random.Range(-0.5f, 0.5f);
                 }
@@ -119,10 +119,10 @@ public class neuralNetwork : MonoBehaviour
     // Get input values for the neural network
     private float[] inputs()
     {
-        float[] array = new float[neuronAmount[0]];
+        float[] array = new float[layers[0]];
         array[0] = destinationX - transform.position.x;
         array[1] = destinationY - transform.position.y;
-        if (neuronAmount[0] > 2)
+        if (layers[0] > 2)
         {
             array[2] = currentExplorationDirection.x;
             array[3] = currentExplorationDirection.y;
@@ -133,18 +133,18 @@ public class neuralNetwork : MonoBehaviour
     // Process inputs through the neural network and return outputs
     private float[] outputs(float[] inputs)
     {
-        if (inputs.Length != neuronAmount[0])
+        if (inputs.Length != layers[0])
         {
-            Debug.LogError($"Input length ({inputs.Length}) does not match first layer neuron count ({neuronAmount[0]})");
-            return new float[neuronAmount[layerAmount - 1]];
+            Debug.LogError($"Input length ({inputs.Length}) does not match first layer neuron count ({layers[0]})");
+            return new float[layers[layers.Length - 1]];
         }
 
-        for (int i = 0; i < neuronAmount[0]; i++)
+        for (int i = 0; i < layers[0]; i++)
         {
             neurons[0][i] = inputs[i];
         }
 
-        for (int i = 1; i < layerAmount; i++)
+        for (int i = 1; i < layers.Length; i++)
         {
             for (int j = 0; j < neurons[i].Length; j++)
             {
@@ -157,7 +157,7 @@ public class neuralNetwork : MonoBehaviour
             }
         }
 
-        return neurons[layerAmount - 1];
+        return neurons[layers.Length - 1];
     }
 
     // Create a child neural network with potential mutations
@@ -174,25 +174,25 @@ public class neuralNetwork : MonoBehaviour
         nn.random = new System.Random(id);
         nn.layers = layers;
         nn.neurons = neurons;
-        nn.layerAmount = layerAmount;
-        nn.neuronAmount = neuronAmount;
+        //nn.layerAmount = layerAmount;
+        //nn.neuronAmount = neuronAmount;
         nn.bias = bias;
         nn.destinationX = destinationX;
         nn.destinationY = destinationY;
         nn.mutateChance = mutateChance;
-        for (int i = 0; i < layerAmount; i++)
+        for (int i = 0; i < layers.Length; i++)
         {
-            nn.layers[i] = neuronAmount[i];
+            nn.layers[i] = layers[i];
         }
         nn.weights = weights;
         /*
-        for (int i = 0; i < layerAmount - 1; i++)
+        for (int i = 0; i < layers.Length - 1; i++)
         {
-            nn.weights[i] = new float[neuronAmount[i]][];
-            for (int j = 0; j < neuronAmount[i]; j++)
+            nn.weights[i] = new float[layers[i]][];
+            for (int j = 0; j < layers[i]; j++)
             {
-                nn.weights[i][j] = new float[neuronAmount[i + 1]];
-                for (int k = 0; k < neuronAmount[i + 1]; k++)
+                nn.weights[i][j] = new float[layers[i + 1]];
+                for (int k = 0; k < layers[i + 1]; k++)
                 {
                     if (UnityEngine.Random.value < mutateChance)
                     {
@@ -214,30 +214,13 @@ public class neuralNetwork : MonoBehaviour
     {
         botRunner br = GameObject.Find("generationRunner").GetComponent<botRunner>();
         id = br.botNum;
-        layerAmount = br.layerAmount + 2;
-        int[] neuronsAmount = new int[layerAmount];
-        for (int i = 0; i < neuronsAmount.Length; i++)
-        {
-            if (i == 0 || i == neuronsAmount.Length - 1)
-            {
-                neuronsAmount[i] = 2; //sets amount of inputs and outputs
-            }
-            else
-            {
-                neuronsAmount[i] = br.hlnAmount; //sets amount of neurons in hidden layers
-            }
-        }
-        neuronAmount = neuronsAmount;
+        //layerAmount = br.layerAmount + 2;
         mutateChance = br.mutateChance;
 
         destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
         destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
         random = new System.Random(id); // Initialize the random variable with id as seed
-        layers = new int[layerAmount];
-        for (int i = 0; i < layerAmount; i++)
-        {
-            layers[i] = neuronAmount[i]; // Set each layer to the corresponding number of neurons
-        }
+        layers = new int[br.layerAmount + 2];
 
         //initalize neurons and weights
         print(br.getGen());
@@ -813,7 +796,14 @@ public class neuralNetwork : MonoBehaviour
                 {
                     if (UnityEngine.Random.value < bot.mutateChance)
                     {
-                        bot.weights[i][j][k] += UnityEngine.Random.Range(-0.1f, 0.1f);
+                        int random = UnityEngine.Random.Range(1, 3);
+                        if(random == 1) {
+                            bot.weights[i][j][k] += UnityEngine.Random.Range(-0.1f, 0.1f);
+                        } else if(random == 2) {
+                            bot.weights[i][j][k] *= UnityEngine.Random.Range(-1f, 1f);
+                        } else {
+                            bot.weights[i][j][k] = UnityEngine.Random.Range(-0.5f, 0.5f);
+                        }
                     }
                 }
             }
