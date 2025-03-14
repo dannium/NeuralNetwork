@@ -1304,7 +1304,7 @@ MonoBehaviour:
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.5
+  m_FillAmount: 0.1557789
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -2154,7 +2154,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 4
+  m_Value: 17.32051
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2763,8 +2763,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2047403763}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 9.375}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3466,8 +3466,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1981626194}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0.22222222, y: 0}
+  m_AnchorMax: {x: 0.22222222, y: 1}
   m_AnchoredPosition: {x: 0, y: 9.375}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4392,7 +4392,7 @@ MonoBehaviour:
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.5
+  m_FillAmount: 0.22222222
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -5080,8 +5080,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 385383621}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0.1732051, y: 0}
+  m_AnchorMax: {x: 0.1732051, y: 1}
   m_AnchoredPosition: {x: 0, y: 9.375}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -11339,7 +11339,7 @@ MonoBehaviour:
   m_MinValue: 1
   m_MaxValue: 200
   m_WholeNumbers: 1
-  m_Value: 2
+  m_Value: 32
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -11780,7 +11780,7 @@ MonoBehaviour:
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.5
+  m_FillAmount: 0.1732051
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -11825,8 +11825,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1407503532}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0.1557789, y: 0}
+  m_AnchorMax: {x: 0.1557789, y: 1}
   m_AnchoredPosition: {x: 0, y: 9.375}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -12064,7 +12064,7 @@ MonoBehaviour:
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.5
+  m_FillAmount: 0.25
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0

@@ -233,7 +233,7 @@ public class botRunner : MonoBehaviour
             hlnAmount = (int)neuronsSlider.value;
             neuronsTxt.text = "Neurons: " + hlnAmount;
         } else if(slider == mutateSlider) {
-            mutateChance = mutateSlider.value;
+            mutateChance = (float)Math.Pow((double)mutateSlider.value, 2)/100;
             mutateTxt.text = "Mutate chance: " + Mathf.Round(mutateChance*100)/100 + "%";
         } else if(slider == botsSlider)
         {
@@ -242,4 +242,6 @@ public class botRunner : MonoBehaviour
         }
 
     }
+
+
 }

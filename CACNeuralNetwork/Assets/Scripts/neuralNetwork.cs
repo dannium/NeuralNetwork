@@ -64,9 +64,11 @@ public class neuralNetwork : MonoBehaviour
     private float decelerationRate = 5f;
     private float minimumMovementSpeed = 0.5f;
 
+    */
     // Simplified wall interaction
-    private float wallRepelForce = 1f;
-    private float wallRepelDistance = 1f;
+    private float wallRepelForce = 0.625f;
+    private float wallRepelDistance = 0.625f;
+    /*
     private float wallDetectionDistance = 1.5f;
     private float wallAvoidanceForce = 2f;
 
@@ -184,6 +186,7 @@ public class neuralNetwork : MonoBehaviour
         Child.name = id.ToString();
         nn.pID = transform.GetComponent<neuralNetwork>().id;
         nn.score = 0;
+        nn.moveSpeed = moveSpeed;
         nn.id = this.id;
         //nn.random = new System.Random(id);
         nn.layers = layers;
@@ -266,7 +269,7 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         botRunner br = GameObject.Find("generationRunner").GetComponent<botRunner>();
-        //moveSpeed *= 6/(br.hlnAmount*br.layerAmount);
+        moveSpeed += ((20-br.hlnAmount) * (6-br.layerAmount))/20;
         id = int.Parse(gameObject.name);
         mutateChance = br.mutateChance;
 
@@ -384,11 +387,11 @@ public class neuralNetwork : MonoBehaviour
                 // Apply separation force (increased priority)
                 Vector2 separationForce = CalculateSeparationForce();
                 movement += separationForce * 2f; // Doubled the influence of separation
-
+                */
                 // Apply wall repel force (with reduced effect)
                 Vector2 wallRepelForce = CalculateWallRepelForce();
-                movement += wallRepelForce * 0.5f; // Reduced influence of wall repel
-
+                rb.velocity += wallRepelForce * 0.5f; // Reduced influence of wall repel
+                /*
                 // Apply exploration bias based on cell visitation frequency
                 Vector2 explorationBias = CalculateExplorationBias();
                 movement += explorationBias * 0.5f;
@@ -453,7 +456,7 @@ public class neuralNetwork : MonoBehaviour
             }
 
             rb.constraints = RigidbodyConstraints2D.FreezeRotation; */
-            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, Time.deltaTime);
+            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, Time.deltaTime*5);
         }
 
         /*// Increase score based on separation from other bots
@@ -655,7 +658,7 @@ public class neuralNetwork : MonoBehaviour
 
         return separationForce;
     }
-
+    */
     // Calculate force to repel from walls
     private Vector2 CalculateWallRepelForce()
     {
@@ -674,7 +677,7 @@ public class neuralNetwork : MonoBehaviour
 
         return repelForce;
     }
-
+    /*
     // Update the set of explored cells
     private void UpdateExploredCells()
     {
@@ -732,7 +735,7 @@ public class neuralNetwork : MonoBehaviour
             // Reduce the score penalty for touching walls
             score -= 5f * Time.deltaTime; // Reduced penalty
         }*/
-        score -= 5f;
+        score -= 3f;
     } 
 
     // Handle collision with edges and player
