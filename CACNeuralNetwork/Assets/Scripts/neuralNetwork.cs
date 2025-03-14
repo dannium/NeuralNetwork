@@ -66,8 +66,8 @@ public class neuralNetwork : MonoBehaviour
 
     */
     // Simplified wall interaction
-    private float wallRepelForce = 0.625f;
-    private float wallRepelDistance = 0.625f;
+    private float wallRepelForce = 1f;
+    private float wallRepelDistance = 0.5f;
     /*
     private float wallDetectionDistance = 1.5f;
     private float wallAvoidanceForce = 2f;
@@ -135,6 +135,7 @@ public class neuralNetwork : MonoBehaviour
         array[1] = destinationY - transform.position.y;
         array[2] = (new Vector2(transform.position.x, transform.position.y) - GameObject.FindGameObjectWithTag("wall").GetComponent<TilemapCollider2D>().ClosestPoint(transform.position)).x;
         array[3] = (new Vector2(transform.position.x, transform.position.y) - GameObject.FindGameObjectWithTag("wall").GetComponent<TilemapCollider2D>().ClosestPoint(transform.position)).y;
+
         /*
         if (layers[0] > 2)
         {
@@ -764,7 +765,7 @@ public class neuralNetwork : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D col) {
         if (col.gameObject.CompareTag("plr") && !foundPlayer)
         {
-            score += 10000*GameObject.Find("generationRunner").GetComponent<botRunner>().timer;
+            score += 100000*GameObject.Find("generationRunner").GetComponent<botRunner>().timer;
             foundPlayer = true;
         }
     }
