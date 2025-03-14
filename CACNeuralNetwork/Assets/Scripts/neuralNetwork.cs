@@ -1,7 +1,6 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
+
 using TMPro;
 using Unity.VisualScripting;
 using System.Threading;
@@ -10,7 +9,15 @@ using System.Transactions;
 //using UnityEditor.Callbacks;
 using System.Security.Cryptography;
 using System.Data;
+using UnityEditor;
+using System.Data.Common;
+using UnityEditor.Animations;*/
+using UnityEngine;
+using System;
 using UnityEngine.Tilemaps;
+using System.IO.Pipes;
+using Unity.VisualScripting;
+using System.Data;
 
 public class neuralNetwork : MonoBehaviour
 {
@@ -29,10 +36,11 @@ public class neuralNetwork : MonoBehaviour
     public float mutateChance; // write as percent
 
     public int id;
+    public int pID;
     Rigidbody2D rb;
     bool foundPlayer = false;
-    float moveSpeed = 3f;
-    float foundPlayerMoveSpeed = 5f; // New variable for speed after finding the player
+    float moveSpeed = 4f;
+    /*float foundPlayerMoveSpeed = 5f; // New variable for speed after finding the player
 
     // Complex exploration variables
     private Vector2 currentExplorationDirection;
@@ -81,7 +89,7 @@ public class neuralNetwork : MonoBehaviour
     public static int populationSize = 50;
     public static float elitePercentage = 1f;
     public static float crossoverRate = 0.7f;
-
+    */
     private bool isInitialPopulation = false;
 
     // Initialize neurons for each layer
@@ -143,7 +151,7 @@ public class neuralNetwork : MonoBehaviour
             return new float[layers[layers.Length - 1]];
         }
         
-        //neurons[0] = new float[inputs.Length];
+        neurons[0] = new float[inputs.Length];
         for (int i = 0; i < inputs.Length; i++)
         {
             neurons[0][i] = inputs[i];
@@ -153,7 +161,7 @@ public class neuralNetwork : MonoBehaviour
         {
             for (int j = 0; j < neurons[i].Length; j++)
             {
-                float value = 0;
+                float value = 0f;
                 for (int k = 0; k < neurons[i - 1].Length; k++)
                 {
                     value += weights[i][j][k] * neurons[i - 1][k];
@@ -174,22 +182,62 @@ public class neuralNetwork : MonoBehaviour
         GameObject Child = Instantiate(gameObject);
         neuralNetwork nn = Child.GetComponent<neuralNetwork>();
         Child.name = id.ToString();
+        nn.pID = transform.GetComponent<neuralNetwork>().id;
         nn.score = 0;
         nn.id = this.id;
         //nn.random = new System.Random(id);
         nn.layers = layers;
-        nn.neurons = neurons;
+        nn.initNeurons();
+        nn.initWeights();
         //nn.layerAmount = layerAmount;
         //nn.neuronAmount = neuronAmount;
         nn.bias = bias;
         nn.destinationX = destinationX;
         nn.destinationY = destinationY;
         nn.mutateChance = mutateChance;
-        for (int i = 0; i < layers.Length; i++)
+        //nn.weights = new float[layers.Length][][];
+        //print("Unmutated bot " + id + ":" + weights[1][0][0] + ", " + nn.weights[1][0][0]);
+
+        for (int i = 1; i < nn.weights.Length; i++)
         {
-            nn.layers[i] = layers[i];
+            nn.weights[i] = new float[layers[i]][];
+            for (int j = 0; j < nn.neurons[i].Length; j++)
+            {
+                nn.weights[i][j] = new float[layers[i-1]];
+                for (int k = 0; k < nn.layers[i - 1]; k++)
+                {
+                    //UnityEngine.Random.InitState((int)DateTime.Now.Ticks*bot.id+i+2*j+3*k);
+                    if (UnityEngine.Random.Range(0.00f, 100.00f) <= nn.mutateChance)
+                    {
+                        int random = UnityEngine.Random.Range(1, 4);
+                        /*if(i == 1 && j == 0 && k == 0) {
+                            print("random weight of bot " + id + $"(parent = {pID}): " + nn.weights[1][0][0]);
+                            print("random weight of bot " + id + $"'s parent ({pID}): " + weights[1][0][0]);
+                        }*/
+                        //int random = 3;
+                        //print($"Weight = {bot.weights[i][j][k]}, bot {bot.id}, neuron {i}, {j}, {k}... Random = {random}");
+                        if(random == 1) {
+                            nn.weights[i][j][k] = Mathf.Clamp(nn.weights[i][j][k] + UnityEngine.Random.Range(-0.25f, 0.25f), -0.5f, 0.5f);
+                        } else if(random == 2) {
+                            nn.weights[i][j][k] *= UnityEngine.Random.Range(-1.0000f, 1.0000f);
+                        } else {
+                            nn.weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f);
+                        }
+                        //print($"Weight = {bot.weights[i][j][k]}, bot {bot.id}, neuron {i}, {j}, {k}... Random = {random}");
+                        /*if(i == 1 && j == 0 && k == 0) {
+                            print("(mutated) random weight of bot " + id + $"(parent = {pID}): " + nn.weights[1][0][0]);
+                            print("CHILD " + id + " MUTATED, random weight of bot " + pID + ": " + weights[1][0][0]);
+                        }*/
+                    }    else {
+                            //print("testin " + i + ", " + j + ", " + k + ", id = " + nn.id);
+                            nn.weights[i][j][k] = weights[i][j][k];
+                    }                    
+                }
+            }
         }
-        nn.weights = weights;
+        //print("Mutated bot " + id + ":" + weights[1][0][0] + ", " + nn.weights[1][0][0]);
+
+
         /*
         for (int i = 0; i < layers.Length - 1; i++)
         {
@@ -218,28 +266,37 @@ public class neuralNetwork : MonoBehaviour
     void Start()
     {
         botRunner br = GameObject.Find("generationRunner").GetComponent<botRunner>();
-        id = br.botNum;
-        //layerAmount = br.layerAmount + 2;
+        //moveSpeed *= 6/(br.hlnAmount*br.layerAmount);
+        id = int.Parse(gameObject.name);
         mutateChance = br.mutateChance;
 
         destinationX = GameObject.FindGameObjectWithTag("plr").transform.position.x;
         destinationY = GameObject.FindGameObjectWithTag("plr").transform.position.y;
-        random = new System.Random(id); // Initialize the random variable with id as seed
-        layers = new int[br.layerAmount + 2];
-        layers[0] = 4;
-        for(int i = 0; i < br.layerAmount; i++) {
-            layers[i + 1] = br.hlnAmount;
-        }
-        layers[br.layerAmount + 1] = 2;
 
+        //random = new System.Random(id * (int)DateTime.Now.Ticks); // Initialize the random variable with id as seed
+        //layerAmount = br.layerAmount + 2;
+        
         //initalize neurons and weights
         //print(br.getGen());
-        if(br.getGen() == 2) {
+        if(br.getGen() == 1) {
+            layers = new int[br.layerAmount + 2];
+            layers[0] = 4;
+            for(int i = 0; i < br.layerAmount; i++) {
+                layers[i + 1] = br.hlnAmount;
+            }
+            layers[br.layerAmount + 1] = 2;
             initNeurons();
             initWeights();
+        } else {
+            //float[] test = {1, 2, 3, 4};
+            //print(outputs(test)[0] + ", " + outputs(test)[1] + ", id = " + id);
+            //Mutate();
+            //print(outputs(test)[0] + ", " + outputs(test)[1]  + ", id = " + id + " (mutated)");
+
         }
         rb = GetComponent<Rigidbody2D>();
-        lastPosition = rb.position;
+        //lastPosition = rb.position;
+        
         /*
         SetNewExplorationDirection();
 
@@ -355,7 +412,8 @@ public class neuralNetwork : MonoBehaviour
                 // Apply the velocity to the rigidbody
                 rb.velocity = currentVelocity;*/
                 rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(outputArray[0] * moveSpeed, outputArray[1] * moveSpeed), 0.1f);
-            }
+                //print($"Bot {id}, x: {outputArray[0]}, y: {outputArray[1]}");
+           }
             else
             {
                 Debug.LogError("Output array does not have enough elements");
@@ -412,12 +470,13 @@ public class neuralNetwork : MonoBehaviour
         // Reduce score based on the distance from the destination (less priority)
         //score -= (Mathf.Abs(transform.position.y - destinationY) + Mathf.Abs(transform.position.x - destinationX)) * Time.deltaTime * 0.1f;
         // Check if all bots have finished or a time limit has been reached
-        if (population.Count > 0 && (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f)) // 60 seconds time limit
+       /* if (population.Count > 0 && (population.TrueForAll(bot => bot.foundPlayer) || Time.time > 60f)) // 60 seconds time limit
         {
             EvolvePopulation();
-        }
+        }*/
     }
 
+/*
     // Set a new exploration direction using a complex method
     private void SetNewExplorationDirection()
     {
@@ -650,7 +709,7 @@ public class neuralNetwork : MonoBehaviour
             exploredCells.Remove(cell);
         }
     }
-
+*/
     // Handle collision with walls
     private void OnCollisionStay2D(Collision2D col)
     {
@@ -708,6 +767,7 @@ public class neuralNetwork : MonoBehaviour
     }
 
     // Evolve the population to the next generation
+    /*
     private static void EvolvePopulation()
     {
         generationCount++;
@@ -801,38 +861,47 @@ public class neuralNetwork : MonoBehaviour
 
         return child;
     }
-
+*/
     // Mutate the weights of a neural network
-    private static void Mutate(neuralNetwork bot)
+    private void Mutate(neuralNetwork nn)
     {
-        if (bot == null)
-        {
-            Debug.LogError("Cannot mutate: bot is null");
-            return;
-        }
 
-        for (int i = 1; i < bot.weights.Length; i++)
+        for (int i = 1; i < nn.weights.Length; i++)
         {
-            for (int j = 0; j < bot.neurons[i].Length; j++)
+            
+            for (int j = 0; j < nn.neurons[i].Length; j++)
             {
-                for (int k = 0; k < bot.layers[i - 1]; k++)
+                for (int k = 0; k < nn.layers[i - 1]; k++)
                 {
-                    if (UnityEngine.Random.value < bot.mutateChance)
+                    //UnityEngine.Random.InitState((int)DateTime.Now.Ticks*bot.id+i+2*j+3*k);
+                    if (UnityEngine.Random.Range(0.00f, 100.00f) <= nn.mutateChance)
                     {
-                        int random = UnityEngine.Random.Range(1, 3);
-                        if(random == 1) {
-                            bot.weights[i][j][k] = Mathf.Clamp(bot.weights[i][j][k] + UnityEngine.Random.Range(-0.25f, 0.25f), -0.5f, 0.5f);
-                        } else if(random == 2) {
-                            bot.weights[i][j][k] *= UnityEngine.Random.Range(-1f, 1f);
-                        } else {
-                            bot.weights[i][j][k] = UnityEngine.Random.Range(-0.5f, 0.5f);
+                        int random = UnityEngine.Random.Range(1, 4);
+                        if(i == 1 && j == 0 && k == 0) {
+                            print("random weight of bot " + id + $"(parent = {pID}): " + nn.weights[1][0][0]);
                         }
-                    }
+                        //int random = 3;
+                        //print($"Weight = {bot.weights[i][j][k]}, bot {bot.id}, neuron {i}, {j}, {k}... Random = {random}");
+                        if(random == 1) {
+                            nn.weights[i][j][k] = Mathf.Clamp(nn.weights[i][j][k] + UnityEngine.Random.Range(-0.25f, 0.25f), -0.5f, 0.5f);
+                        } else if(random == 2) {
+                            nn.weights[i][j][k] *= UnityEngine.Random.Range(-1.0000f, 1.0000f);
+                        } else {
+                            nn.weights[i][j][k] = UnityEngine.Random.Range(-0.500f, 0.500f);
+                        }
+                        //print($"Weight = {bot.weights[i][j][k]}, bot {bot.id}, neuron {i}, {j}, {k}... Random = {random}");
+                        if(i == 1 && j == 0 && k == 0) {
+                            print("(mutated) random weight of bot " + id + $"(parent = {pID}): " + nn.weights[1][0][0]);
+                        }
+                    }    else {
+                            nn.weights[i][j][k] = nn.weights[i][j][k];
+                    }                    
                 }
             }
         }
     }
 
+/*
     // Reset the bot for a new generation
     private void ResetForNewGeneration()
     {
@@ -851,11 +920,11 @@ public class neuralNetwork : MonoBehaviour
         exploredCells.Clear();
         explorationCenter = transform.position;
         GenerateExplorationPath();
-        */
+        * /
         transform.position = Vector2.zero;
         rb.velocity = Vector2.zero;
     }
-
+*/
     // Set this bot as part of the initial population
     public void SetAsInitialPopulation()
     {

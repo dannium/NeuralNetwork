@@ -40,7 +40,7 @@ public class botRunner : MonoBehaviour
 
     float[] scores;
     public int botNum;
-    public float timer = 0;
+    public float timer;
 
     int gen = 1;
 
@@ -129,7 +129,7 @@ public class botRunner : MonoBehaviour
             {
                 scores[i] = 0;
                 bots[i] = botsList[i - index].GetComponent<neuralNetwork>().createChild(botNum);
-                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                //bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f));
                 botNum++;
             }
             else
@@ -137,7 +137,7 @@ public class botRunner : MonoBehaviour
                 //If no parent is available, instantiate a new bot
                 bots[i] = Instantiate(bot);
                 bots[i].name = "AHHHHHHHHHHHHH";
-                bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f));
+                //bots[i].transform.position = new Vector2(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f));
                 botNum++;
             }
         }
@@ -196,7 +196,7 @@ public class botRunner : MonoBehaviour
 
             if (timer <= 0) {
             timer = 30;
-            timerTxt.text = "0:15.00";
+            timerTxt.text = "0:30.00";
             nextGen();
         }
         }

@@ -101,12 +101,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
-  layerAmount: 4
-  neuronAmount: 02000000060000000600000002000000
   layers: 02000000060000000600000002000000
   bias: 0.25
   mutateChance: 3
   id: 0
+  pID: 0
+  botPrefab: {fileID: 4062519793298150738}
 --- !u!50 &-5453416471586602911
 Rigidbody2D:
   serializedVersion: 4
